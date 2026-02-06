@@ -30,6 +30,7 @@ environment:
 dependencies:
   dartssh2: ^2.9.0
   flutter_secure_storage: ^9.0.0
+  xterm: ^4.0.0
   flutter:
     sdk: flutter
 

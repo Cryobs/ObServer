@@ -87,9 +87,10 @@ class Server {
     if (_client == null) return null;
 
     final session = await _client!.shell(
-      environment: {
-        "TERM": 'xterm-256color',
-      }
+      pty: const SSHPtyConfig(
+        width: 80,
+        height: 25,
+      ),
     );
 
     return session;

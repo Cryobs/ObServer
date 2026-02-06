@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'ssh_core.dart';
 import 'services/secure_storage.dart';
+import 'pages/terminal.dart';
 
-void main() {
+void main() async {
   runApp(const MyApp());
 }
 
@@ -33,7 +34,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: TerminalScreen()
     );
   }
 }
@@ -74,8 +75,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
     server.passwordKey = "server_${server.id}_password";
     await server.connect();
-    String result = await server.exec("pwd");
-    print(result);
   }
 
   @override
