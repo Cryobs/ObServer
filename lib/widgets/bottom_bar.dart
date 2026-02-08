@@ -9,58 +9,84 @@ class BottomBar extends StatelessWidget {
     required this.onChanged,
   });
 
+  /* Constants */
+  static const List<NavItem> _items = [
+    NavItem(Icons.home_rounded, "Home"),
+    NavItem(Icons.terminal, "SSH"),
+    NavItem(Icons.arrow_circle_down, "Shortcuts"),
+    NavItem(Icons.settings, "Settings"),
+  ];
+
+  static const double _barHeight = 70;
+  static const double _barWidth = 355;
+  static const double _safePadding = 10;
+  static const double _iconSize = 28;
+  static const double _itemHPadding = 12;
+  static const double _textSpacing = 6;
+  static const int _animDuration = 400;
+
+  static const int _containerColor = 0x00171717;
+  static const int _barColor = 0xFF262626;
+  static const int _highlightColor = 0xFF22C55E;
+
+  static const double _barRadius = 40;
+  static const double _highlightRadius = 80;
+
+
+  static final TextStyle _textStyle = TextStyle(
+    color: Colors.black.withOpacity(0.6),
+    fontWeight: FontWeight.w900,
+    fontSize: 14,
+  );
+
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Container(
         height: 90,
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        color: const Color(0x00171717), // Transparent
+        color: const Color(_containerColor),
         child: Center(
           child: Container(
-            width: 355,
-            height: 70,
+            width: _barWidth,
+            height: _barHeight,
             decoration: BoxDecoration(
-              color: const Color(0xFF262626),
-              borderRadius: BorderRadius.circular(40),
+              color: const Color(_barColor),
+              borderRadius: BorderRadius.circular(_barRadius),
             ),
             child: LayoutBuilder(
               builder: (context, constraints) {
-                const double highlightMargin = 10.0;
-
                 return Stack(
                   children: [
                     // GREEN HIGHLIGHT
                     AnimatedPositioned(
-                      left: _getLeftPosition(currentIndex, constraints.maxWidth, highlightMargin, context),
-                      top: highlightMargin,
-                      duration: const Duration(milliseconds: 400),
+                      left: _getLeftPosition(currentIndex, constraints.maxWidth, _safePadding),
+                      top: _safePadding,
+                      duration: const Duration(milliseconds: _animDuration),
                       curve: Curves.easeInOut,
                       child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 400),
+                        duration: const Duration(milliseconds: _animDuration),
                         curve: Curves.easeInOut,
-                        width: _getWidth(currentIndex, context),
-                        height: constraints.maxHeight - (highlightMargin * 2),
+                        width: _itemWidth(currentIndex),
+                        height: constraints.maxHeight - (_safePadding * 2),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF22C55E),
-                          borderRadius: BorderRadius.circular(50),
+                          color: const Color(_highlightColor),
+                          borderRadius: BorderRadius.circular(_highlightRadius),
                         ),
                       ),
                     ),
                     // ICONS & TEXT
                     Padding(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: highlightMargin,
-                        vertical: highlightMargin,
+                        horizontal: _safePadding,
+                        vertical: _safePadding,
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          _navItem(Icons.home_rounded, "Home", 0),
-                          _navItem(Icons.terminal, "SSH", 1),
-                          _navItem(Icons.arrow_circle_down_rounded, "Shortcuts", 2),
-                          _navItem(Icons.settings, "Settings", 3),
-                        ],
+                        children: List.generate(
+                          _items.length,
+                              (i) => _navItem(_items[i], i),
+                        ),
                       ),
                     ),
                   ],
@@ -73,44 +99,31 @@ class BottomBar extends StatelessWidget {
     );
   }
 
-  Widget _navItem(IconData icon, String label, int index) {
+  Widget _navItem(NavItem item, int index) {
     bool isSelected = currentIndex == index;
 
     return GestureDetector(
       onTap: () {onChanged(index);},
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 400),
-        curve: Curves.easeInOut,
+        duration: const Duration(milliseconds: _animDuration),
         height: 50,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
+        padding: const EdgeInsets.symmetric(horizontal: _itemHPadding),
         child: Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Icon(
-              icon,
+              item.icon,
               color: isSelected ? Colors.black.withOpacity(0.6) : Colors.white.withOpacity(0.3),
-              size: 28,
+              size: _iconSize,
             ),
             AnimatedSize(
-              duration: const Duration(milliseconds: 400),
-              curve: Curves.easeInOut,
-              alignment: Alignment.centerLeft,
+              duration: const Duration(milliseconds: _animDuration),
               child: isSelected
                   ? Row(
-                children: [
-                  const SizedBox(width: 6),
-                  Text(
-                    label,
-                    style: TextStyle(
-                      color: Colors.black.withOpacity(0.6),
-                      fontWeight: FontWeight.w900,
-                      fontSize: 14,
-                    ),
-                  ),
-                ],
-              )
+                      children: [
+                        const SizedBox(width: _textSpacing),
+                        Text(item.label, style: _textStyle),
+                      ],
+                    )
                   : const SizedBox.shrink(),
             ),
           ],
@@ -119,12 +132,9 @@ class BottomBar extends StatelessWidget {
     );
   }
 
-  double _textWidth(
-      String text,
-      TextStyle style,
-      ) {
+  double _textWidth(String text) {
     final textPainter = TextPainter(
-      text: TextSpan(text: text, style: style),
+      text: TextSpan(text: text, style: _textStyle),
       maxLines: 1,
       textDirection: TextDirection.ltr,
     )..layout();
@@ -133,45 +143,42 @@ class BottomBar extends StatelessWidget {
   }
 
 
-  double _getWidth(int index, BuildContext context) {
-    const double iconWidth = 28;
-    const double padding = 24;
-    const double spacing = 6;
 
-    final labels = ["Home", "SSH", "Shortcuts", "Settings"];
+  double _itemWidth(int index) {
+    final textW = _textWidth(_items[index].label);
+    return _iconSize +
+        (_itemHPadding * 2) +
+        _textSpacing +
+        textW;
+  }
 
-    const textStyle = TextStyle(
-      fontWeight: FontWeight.w900,
-      fontSize: 14,
+  double get _iconOnlyWidth =>
+      _iconSize + (_itemHPadding * 2);
+
+
+  double _getLeftPosition(int index, double containerWidth, double margin) {
+    final count = _items.length;
+
+    final widths = List.generate(
+      count,
+          (i) => i == currentIndex ? _itemWidth(i) : _iconOnlyWidth,
     );
 
-    final textW = _textWidth(labels[index], textStyle);
+    final available = containerWidth - (_safePadding * 2);
+    final spacing = (available - widths.reduce((a, b) => a + b)) / (count - 1);
 
-    return iconWidth + padding + spacing + textW;
-  }
-
-  double _getLeftPosition(int index, double containerWidth, double margin, BuildContext context) {
-    const double iconOnlyWidth = 28 + 24; // icon + padding
-
-    double activeWidth = _getWidth(currentIndex, context);
-
-    List<double> buttonWidths = [];
-    for (int i = 0; i < 4; i++) {
-      buttonWidths.add(i == currentIndex ? activeWidth : iconOnlyWidth);
-    }
-
-    double availableWidth = containerWidth - (margin * 2);
-
-    double totalButtonsWidth = buttonWidths.reduce((a, b) => a + b);
-
-    double spacing = (availableWidth - totalButtonsWidth) / 3;
-
-    double leftPosition = margin;
-
+    double left = _safePadding;
     for (int i = 0; i < index; i++) {
-      leftPosition += buttonWidths[i] + spacing;
+      left += widths[i] + spacing;
     }
 
-    return leftPosition;
-  }
+    return left;  }
 }
+
+class NavItem {
+  final IconData icon;
+  final String label;
+
+  const NavItem(this.icon, this.label);
+}
+
