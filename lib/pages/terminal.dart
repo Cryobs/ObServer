@@ -55,7 +55,7 @@ class _TerminalScreenState extends State<TerminalScreen> {
 
   Future<void> _connectToServer() async {
     try {
-      await SecureStorageService.savePassword(
+      await SecureStorageService.saveValue(
         "server_${server.id}_password",
         "ZAQ!2wsx",
       );

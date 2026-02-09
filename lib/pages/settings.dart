@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:pocket_ssh/services/settings_storage.dart';
 import 'package:pocket_ssh/widgets/input_list.dart';
+import 'package:pocket_ssh/widgets/input_text.dart';
+import 'package:pocket_ssh/widgets/private_key_list.dart';
 import 'package:provider/provider.dart';
+
+import '../widgets/input_pass.dart';
 
 
 class SettingsPage extends StatelessWidget {
@@ -38,6 +42,7 @@ class SettingsPage extends StatelessWidget {
                     ),
                     child: Column(
                       children: [
+                        /* REFRESH RATE */
                         InputList(
                           options: const [
                             "5 sec",
@@ -55,6 +60,17 @@ class SettingsPage extends StatelessWidget {
                           },
 
                         ),
+                        /* DIVIDER */
+                        const Divider(
+                          color: Colors.white38,
+                          thickness: 1,
+                          indent: 0,
+                          endIndent: 0,
+                          height: 20,
+                        ),
+                        PrivateKeyList(),
+
+                        /* SAVE BUTTON */
                         const Spacer(),
                         Align(
                           alignment: Alignment.bottomCenter,
