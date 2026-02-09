@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pocket_ssh/services/settings_storage.dart';
 import 'package:pocket_ssh/widgets/input_list.dart';
-import 'package:pocket_ssh/widgets/input_text.dart';
-import 'package:pocket_ssh/widgets/input_pass.dart';
 import 'package:provider/provider.dart';
 
 
@@ -38,24 +36,50 @@ class SettingsPage extends StatelessWidget {
                       color: const Color(0xFF262626),
                       borderRadius: BorderRadius.circular(40),
                     ),
-                    child: const Column(
+                    child: Column(
                       children: [
                         InputList(
-                            options: [
-                              "5 sec",
-                              "10 sec",
-                              "15 sec",
-                              "30 sec",
-                              "45 sec",
-                              "60 sec",
-                            ],
-                            label: "Refresh Rate"
+                          options: const [
+                            "5 sec",
+                            "10 sec",
+                            "15 sec",
+                            "30 sec",
+                            "45 sec",
+                            "60 sec",
+                          ],
+                          label: "Refresh Rate",
+                          value: "${settings.draft.refreshRate} sec",
+                          onChanged: (v) {
+                            final value = int.parse(v.split(" ").first);
+                            settings.setRefreshRateDraft(value);
+                          },
+
                         ),
-                        InputText(
-                          label: "Name",
-                          hint: "Your Name",
-                        ),
-                        InputPass(),
+                        const Spacer(),
+                        Align(
+                          alignment: Alignment.bottomCenter,
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              await settings.save();
+
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text("Settings saved")),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                              Theme.of(context).colorScheme.secondary,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 40,
+                                vertical: 8,
+                              )
+                            ),
+                            child: const Text("Save", style: TextStyle(fontSize: 16),),
+                          ),
+                        )
                       ],
                     ),
                   )
@@ -66,5 +90,4 @@ class SettingsPage extends StatelessWidget {
       ),
     );
   }
-
 }
