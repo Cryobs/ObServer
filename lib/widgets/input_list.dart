@@ -16,41 +16,34 @@ class InputList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        color: const Color(0xFF262626),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          Text(
-            label,
-            style: const TextStyle(color: Colors.white, fontSize: 16),
+    return Row(
+      children: [
+        Text(
+          label,
+          style: const TextStyle(color: Colors.white, fontSize: 16),
+        ),
+        const Spacer(),
+        DropdownButtonHideUnderline(
+          child: DropdownButton<String>(
+            value: value,
+            borderRadius: BorderRadius.circular(20),
+            dropdownColor: const Color(0xFF262626),
+            iconEnabledColor: Colors.white,
+            items: options.map((option) {
+              return DropdownMenuItem(
+                value: option,
+                child: Text(
+                  option,
+                  style: const TextStyle(color: Colors.white),
+                ),
+              );
+            }).toList(),
+            onChanged: (v) {
+              if (v != null) onChanged(v);
+            },
           ),
-          const Spacer(),
-          DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: value,
-              borderRadius: BorderRadius.circular(20),
-              dropdownColor: const Color(0xFF262626),
-              iconEnabledColor: Colors.white,
-              items: options.map((option) {
-                return DropdownMenuItem(
-                  value: option,
-                  child: Text(
-                    option,
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                );
-              }).toList(),
-              onChanged: (v) {
-                if (v != null) onChanged(v);
-              },
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
