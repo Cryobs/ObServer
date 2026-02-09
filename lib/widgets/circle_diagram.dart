@@ -26,7 +26,18 @@ class _CircleDiagramState extends State<CircleDiagram> {
     _tooltipBehavior = TooltipBehavior(enable: true);
     super.initState();
   }
+
   @override
+  void didUpdateWidget(covariant CircleDiagram oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.diagval != widget.diagval) {
+      setState(() {
+        _chartData = getChartData();
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Expanded(
