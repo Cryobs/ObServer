@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pocket_ssh/services/settings_storage.dart';
+import 'package:pocket_ssh/widgets/input_text.dart';
 import 'package:provider/provider.dart';
 
 
@@ -39,12 +40,10 @@ class SettingsPage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            Text("Refresh rate", style: TextStyle(color: Colors.white, fontSize: 16),),
-
-                          ],
-                        ),
+                        InputText(
+                          label: "Name",
+                          hint: "Your Name",
+                        )
                       ],
                     ),
                   ),
