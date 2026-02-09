@@ -4,7 +4,6 @@ import 'package:pocket_ssh/pages/template.dart';
 import 'package:pocket_ssh/services/settings_storage.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:pocket_ssh/widgets/input_text.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

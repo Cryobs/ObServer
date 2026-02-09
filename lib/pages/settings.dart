@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pocket_ssh/services/settings_storage.dart';
+import 'package:pocket_ssh/widgets/input_list.dart';
 import 'package:pocket_ssh/widgets/input_text.dart';
 import 'package:pocket_ssh/widgets/input_pass.dart';
 import 'package:provider/provider.dart';
@@ -39,6 +40,17 @@ class SettingsPage extends StatelessWidget {
                     ),
                     child: const Column(
                       children: [
+                        InputList(
+                            options: [
+                              "5 sec",
+                              "10 sec",
+                              "15 sec",
+                              "30 sec",
+                              "45 sec",
+                              "60 sec",
+                            ],
+                            label: "Refresh Rate"
+                        ),
                         InputText(
                           label: "Name",
                           hint: "Your Name",
