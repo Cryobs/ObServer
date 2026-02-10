@@ -38,7 +38,16 @@ void main() async {
           ),
         ],
         child: Template(pages: [
-          ServerWidget(server:server ,online: false,),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              children: [
+                ServerWidget(server:server ,online: false,),
+                SizedBox(height: 20,),
+                ServerWidget(server:server ,online: false,),
+              ],
+            ),
+          ),
           Center(child: Text("Page 1", style: TextStyle(color: Colors.white),)),
           Center(child: Text("Page 2", style: TextStyle(color: Colors.white),)),
           SettingsPage(),

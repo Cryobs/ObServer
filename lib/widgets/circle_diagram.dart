@@ -27,7 +27,7 @@ class _CircleDiagramState extends State<CircleDiagram> {
   @override
   void initState() {
     super.initState();
-    _chartData = getChartData();
+    _chartData = _getChartData();
     _tooltipBehavior = TooltipBehavior(enable: false);
   }
 
@@ -35,9 +35,7 @@ class _CircleDiagramState extends State<CircleDiagram> {
   void didUpdateWidget(covariant CircleDiagram oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.diagval != widget.diagval) {
-      setState(() {
-        _chartData = getChartData();
-      });
+      _chartData = _getChartData();
     }
   }
 
@@ -51,68 +49,54 @@ class _CircleDiagramState extends State<CircleDiagram> {
 
   double _getFontSize(String text, double baseSize) {
     final len = text.length;
-    if (len <= 4) return baseSize;
-    if (len <= 7) return baseSize * 0.86;
-    if (len <= 10) return baseSize * 0.71;
-    return baseSize * 0.57;
+    if (len <= 4) return baseSize * 0.9;     // "100%"
+    if (len <= 6) return baseSize * 0.75;    // "12 GB"
+    if (len <= 8) return baseSize * 0.65;    // "123 GB"
+    if (len <= 10) return baseSize * 0.55;   // "1234 GB"
+    return baseSize * 0.45;                   // Длинные
   }
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final size = constraints.biggest.shortestSide;
+        final availableWidth = constraints.maxWidth;
+        final availableHeight = constraints.maxHeight;
+        final size = (availableWidth < availableHeight
+            ? availableWidth
+            : availableHeight).clamp(60.0, 120.0);
 
         final currentLabel = _showAlternative && widget.alternativeLabel != null
             ? widget.alternativeLabel!
             : widget.label;
 
-        final titleFontSize = size * 0.18;
-        final labelFontSize = size * 0.18;
+        final labelFontSize = (size * 0.2).clamp(10.0, 16.0);
 
-        return GestureDetector(
-          onTap: _toggleLabel,
-          child: SizedBox(
-            width: size,
-            height: size,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Positioned(
-                  top: size * 0.05,
-                  child: Text(
-                    widget.title,
-                    style: TextStyle(
-                      fontSize: titleFontSize,
-                      color: Colors.white,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
+        return SizedBox(
+          width: size,
+          height: size,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                widget.title,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500,
                 ),
-                Positioned(
-                  top: size * 0.25,
-                  child: SizedBox(
-                    width: size,
-                    height: size,
-                    child: SfCircularChart(
+              ),
+              const SizedBox(height: 4),
+              Expanded(
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    SfCircularChart(
                       backgroundColor: Colors.transparent,
                       palette: <Color>[getColor()],
                       tooltipBehavior: _tooltipBehavior,
-                      annotations: [
-                        CircularChartAnnotation(
-                          widget: Text(
-                            currentLabel,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: _getFontSize(currentLabel, labelFontSize),
-                              fontWeight: FontWeight.bold,
-                              color: getColor(),
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
+                      margin: EdgeInsets.zero,
                       series: [
                         RadialBarSeries<GPData, String>(
                           dataSource: _chartData,
@@ -127,17 +111,45 @@ class _CircleDiagramState extends State<CircleDiagram> {
                         ),
                       ],
                     ),
-                  ),
+                    GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: _toggleLabel,
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(4.0),
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(
+                                maxWidth: size * 0.7,
+                              ),
+                              child: Text(
+                                currentLabel,
+                                textAlign: TextAlign.center,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: _getFontSize(currentLabel, labelFontSize),
+                                  fontWeight: FontWeight.bold,
+                                  color: getColor(),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       },
     );
   }
 
-  List<GPData> getChartData() {
+  List<GPData> _getChartData() {
     return [GPData('Value', widget.diagval)];
   }
 
