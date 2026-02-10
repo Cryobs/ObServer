@@ -34,7 +34,7 @@ void main() async {
         child: const Template(pages: [
           Center(child: Text("Page 0", style: TextStyle(color: Colors.white),)),
           Center(child: Text("Page 1", style: TextStyle(color: Colors.white),)),
-          PrivateKeyPage(),
+          Center(child: Text("Page 2", style: TextStyle(color: Colors.white),)),
           SettingsPage(),
       ],),
       ),
