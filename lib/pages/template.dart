@@ -49,7 +49,7 @@ class _TemplateState extends State<Template> {
       ),
       home: Scaffold(
           backgroundColor: Colors.black,
-          body: widget.pages[currentIndex],
+          body: SafeArea(child: widget.pages[currentIndex]),
           bottomNavigationBar: BottomBar(
             currentIndex: currentIndex,
             onChanged: (index) {
