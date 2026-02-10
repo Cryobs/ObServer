@@ -84,7 +84,6 @@ class _CircleDiagramState extends State<CircleDiagram> {
                 style: const TextStyle(
                   fontSize: 14,
                   color: Colors.white,
-                  fontWeight: FontWeight.w500,
                 ),
               ),
               const SizedBox(height: 4),
