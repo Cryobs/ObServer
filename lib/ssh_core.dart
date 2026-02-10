@@ -30,7 +30,7 @@ class Server {
   final int port;
   final String username;
 
-  final Statistics stat = Statistics();
+  Statistics? stat;
 
   final AuthType authType;
   String? _passwordKey;
@@ -52,6 +52,7 @@ class Server {
     String? passwordKey,
     this.sshKey,
     this.status = ServerStatus.disconnected,
+    this.stat,
   }) : _passwordKey = passwordKey;
 
   String? get passwordKey => _passwordKey;
@@ -122,7 +123,7 @@ class Server {
   }
   /* ==== Statistics ==== */
   Future<void> getCPU() async {
-    stat.cpu = double.parse((await exec(CPU_USAGE_CMD)).trim());
+    stat?.cpu = double.parse((await exec(CPU_USAGE_CMD)).trim());
   }
 
   Future<void> getMEM() async {
@@ -131,9 +132,9 @@ class Server {
     if (parts.length == 2) {
       final used = double.parse(parts[0]);
       final total = double.parse(parts[1]);
-      stat.memUsed = used / 1024 / 1024 / 1024; /* GB */
-      stat.memTotal = total / 1024 / 1024 / 1024; /* GB */
-      stat.mem = (used / total) * 100;
+      stat?.memUsed = used / 1024 / 1024 / 1024; /* GB */
+      stat?.memTotal = total / 1024 / 1024 / 1024; /* GB */
+      stat?.mem = (used / total) * 100;
     }
   }
 
@@ -143,9 +144,9 @@ class Server {
     if (parts.length == 2) {
       final used = double.parse(parts[0]);
       final total = double.parse(parts[1]);
-      stat.storageUsed = used / 1024 / 1024 / 1024; /* GB */
-      stat.storageTotal = total / 1024 / 1024 / 1024; /* GB */
-      stat.storage = (used / total) * 100;
+      stat?.storageUsed = used / 1024 / 1024 / 1024; /* GB */
+      stat?.storageTotal = total / 1024 / 1024 / 1024; /* GB */
+      stat?.storage = (used / total) * 100;
     }
   }
 
@@ -155,13 +156,13 @@ class Server {
 
     for (int i = 1; i < parts.length; i++) {
       if (parts[i].startsWith('day')) {
-        stat.uptime = '${parts[i - 1]} d';
+        stat?.uptime = '${parts[i - 1]} d';
         break;
       } else if (parts[i].startsWith('hour')) {
-        stat.uptime = '${parts[i - 1]} h';
+        stat?.uptime = '${parts[i - 1]} h';
         break;
       } else if (parts[i].startsWith('minute')) {
-        stat.uptime = '${parts[i-1]} m';
+        stat?.uptime = '${parts[i-1]} m';
         break;
       }
     }
@@ -169,7 +170,7 @@ class Server {
 
   Future<void> getTemp() async {
     var temp = (await exec(TEMP_CMD)).trim();
-    stat.temp = temp.isNotEmpty ? double.parse(temp)/1000 : 0;
+    stat?.temp = temp.isNotEmpty ? double.parse(temp)/1000 : 0;
   }
 
   Future<void> updateStats() async {
@@ -184,16 +185,27 @@ class Server {
 
 
 class Statistics {
-  double cpu = 0; /* % usage */
-  double mem = 0; /* % used */
-  double storage = 0; /* % used */
-  double temp = 0; /* C */
-  String uptime = "?"; /* days, hours, minutes */
+  double cpu; /* % usage */
+  double mem; /* % used */
+  double storage; /* % used */
+  double temp; /* C */
+  String uptime; /* days, hours, minutes */
 
-  double memUsed = 0; /* GB */
-  double memTotal = 0; /* GB */
-  double storageUsed = 0; /* GB */
-  double storageTotal = 0; /* GB */
+  double memUsed; /* GB */
+  double memTotal; /* GB */
+  double storageUsed; /* GB */
+  double storageTotal; /* GB */
 
-  Statistics();
+  Statistics({
+    this.cpu = 0, /* % usage */
+    this.mem = 0, /* % used */
+    this.storage = 0, /* % used */
+    this.temp = 0, /* C */
+    this.uptime = "?", /* days, hours, minutes */
+
+    this.memUsed = 0, /* GB */
+    this.memTotal = 0, /* GB */
+    this.storageUsed = 0, /* GB */
+    this.storageTotal = 0, /* GB */
+  });
 }
