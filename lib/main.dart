@@ -1,64 +1,69 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:pocket_ssh/models/private_key.dart';
-import 'package:pocket_ssh/pages/private_key_page.dart';
+import 'package:pocket_ssh/pages/server_list.dart';
 import 'package:pocket_ssh/pages/settings.dart';
 import 'package:pocket_ssh/pages/template.dart';
 import 'package:pocket_ssh/services/private_key_controller.dart';
 import 'package:pocket_ssh/services/private_key_repo.dart';
+import 'package:pocket_ssh/services/server_controller.dart';
+import 'package:pocket_ssh/services/server_repo.dart';
 import 'package:pocket_ssh/services/settings_storage.dart';
-import 'package:pocket_ssh/ssh_core.dart';
-import 'package:pocket_ssh/widgets/add_server_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:pocket_ssh/widgets/server_widget.dart';
+
+import 'models/server.dart';
+
+
 
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Hive.initFlutter();
+
   Hive.registerAdapter(PrivateKeyAdapter());
+  Hive.registerAdapter(ServerModelAdapter());
 
   final privateKeyRepo = PrivateKeyRepo();
   await privateKeyRepo.init();
 
+  final serverRepo = ServerRepo();
+  await serverRepo.init();
+
   final prefs = await SharedPreferences.getInstance();
 
-  Server server = Server(id: "1", name: "Server 2", host: "123", port: 2, username: "test",
-  stat: Statistics(cpu: 20, mem: 70, storage: 90, temp: 90, uptime: "1 d", memUsed: 123, memTotal: 200, storageTotal: 200, storageUsed: 123));
-
   runApp(
-      MultiProvider(
-        providers: [
-          ChangeNotifierProvider(
-            create: (_) => SettingsController(SettingsRepository(prefs)),
-          ),
-          ChangeNotifierProvider(
-            create: (_) => PrivateKeyController(privateKeyRepo),
-          ),
-        ],
-        child: Template(pages: [
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            child: ListView(
-              children: [Column(
-                children: [
-                  ServerWidget(server:server ,online: false,),
-                  SizedBox(height: 20,),
-                  ServerWidget(server:server ,online: false,),
-                  SizedBox(height: 20,),
-                  AddServerWidget()
-                ],
-              ),]
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => SettingsController(SettingsRepository(prefs)),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => PrivateKeyController(privateKeyRepo),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => ServerController(serverRepo, privateKeyRepo),
+        ),
+      ],
+      child: Template(
+        pages: [
+          const ServerList(),
+          const Center(
+            child: Text(
+              "Page 1",
+              style: TextStyle(color: Colors.white),
             ),
           ),
-          Center(child: Text("Page 1", style: TextStyle(color: Colors.white),)),
-          Center(child: Text("Page 2", style: TextStyle(color: Colors.white),)),
-          SettingsPage(),
-      ],),
+          const Center(
+            child: Text(
+              "Page 2",
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+          const SettingsPage(),
+        ],
       ),
+    ),
   );
-
 }
-

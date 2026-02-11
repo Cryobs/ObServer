@@ -39,6 +39,7 @@ dependencies:
   flutter:
     sdk: flutter
   syncfusion_flutter_charts: ^32.2.3
+  uuid: ^4.5.2
 
 
   # The following adds the Cupertino Icons font to your application.

@@ -50,10 +50,9 @@ class _CircleDiagramState extends State<CircleDiagram> {
   double _getFontSize(String text, double baseSize) {
     final len = text.length;
     if (len <= 4) return baseSize * 0.9;     // "100%"
-    if (len <= 6) return baseSize * 0.75;    // "12 GB"
-    if (len <= 8) return baseSize * 0.65;    // "123 GB"
-    if (len <= 10) return baseSize * 0.55;   // "1234 GB"
-    return baseSize * 0.45;                   // Длинные
+    if (len <= 6) return baseSize * 0.65;    // "123 GB"
+    if (len <= 8) return baseSize * 0.55;    // "1234 GB"
+    return baseSize * 0.45;
   }
 
   @override
@@ -96,6 +95,7 @@ class _CircleDiagramState extends State<CircleDiagram> {
                       palette: <Color>[getColor()],
                       tooltipBehavior: _tooltipBehavior,
                       margin: EdgeInsets.zero,
+
                       series: [
                         RadialBarSeries<GPData, String>(
                           dataSource: _chartData,
@@ -104,7 +104,7 @@ class _CircleDiagramState extends State<CircleDiagram> {
                           maximumValue: 100,
                           radius: '100%',
                           innerRadius: '80%',
-                          cornerStyle: CornerStyle.bothCurve,
+                          cornerStyle: widget.diagval >= 100 ? CornerStyle.bothFlat : CornerStyle.bothCurve,
                           trackColor: getColor(),
                           trackOpacity: 0.3,
                         ),

@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:pocket_ssh/ssh_core.dart';
+import 'package:pocket_ssh/models/server.dart';
 import 'package:pocket_ssh/widgets/circle_diagram.dart';
+
+import '../ssh_core.dart';
 
 class ServerWidget extends StatefulWidget {
   final bool online;
   final Server server;
+  final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
 
   const ServerWidget({
     super.key,
     required this.online,
     required this.server,
+    this.onTap,
+    this.onLongPress,
   });
 
   @override
@@ -33,121 +39,125 @@ class _ServerWidgetState extends State<ServerWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final screenWidth = MediaQuery
-            .of(context)
-            .size
-            .width;
-        final diagramHeight = (screenWidth * 0.25).clamp(105.0, 130.0);
+    if (widget.server.stat == null) {
+      widget.server.stat = Statistics();
+    }
 
-        return Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: const Color(0xFF1E1E1E),
-            borderRadius: BorderRadius.circular(15),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              /* Header */
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Flexible(
-                    child: Text(
-                      widget.server.name,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        widget.online ? "Online" : "Offline",
-                        style: TextStyle(
-                          color: widget.online ? green : red,
+    return GestureDetector(
+      onTap: widget.onTap,
+      onLongPress: widget.onLongPress,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final screenWidth = MediaQuery.of(context).size.width;
+          final diagramHeight = (screenWidth * 0.25).clamp(105.0, 130.0);
+
+          return Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFF1E1E1E),
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                /* Header */
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(
+                      child: Text(
+                        widget.server.name,
+                        style: const TextStyle(
                           fontSize: 16,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
                         ),
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(width: 6),
-                      CircleAvatar(
-                        radius: 5,
-                        backgroundColor: widget.online ? green : red,
-                      )
-                    ],
-                  )
-                ],
-              ),
-
-              const Divider(
-                color: Colors.white38,
-                thickness: 1,
-                height: 20,
-              ),
-
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    flex: 6,
-                    child: _buildDiagramsSection(diagramHeight),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    flex: 2,
-                    child: _buildInfoSection(diagramHeight),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        );
-      },
+                    ),
+                    const SizedBox(width: 8),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          widget.online ? "Online" : "Offline",
+                          style: TextStyle(
+                            color: widget.online ? green : red,
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        CircleAvatar(
+                          radius: 5,
+                          backgroundColor: widget.online ? green : red,
+                        )
+                      ],
+                    )
+                  ],
+                ),
+                const Divider(
+                  color: Colors.white38,
+                  thickness: 1,
+                  height: 20,
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 6,
+                      child: _buildDiagramsSection(diagramHeight),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      flex: 2,
+                      child: _buildInfoSection(diagramHeight),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 
   Widget _buildDiagramsSection(double height) {
+    final stat = widget.server.stat!;
+
     return Container(
       height: height,
       decoration: BoxDecoration(
         color: Colors.black87,
         borderRadius: BorderRadius.circular(15),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Flexible(
             flex: 1,
             child: CircleDiagram(
-              diagval: widget.server.stat!.cpu.toInt(),
-              label: "${widget.server.stat!.cpu.toInt()}%",
+              diagval: stat.cpu.toInt(),
+              label: "${stat.cpu.toInt()}%",
               title: "CPU",
             ),
           ),
           Flexible(
             flex: 1,
             child: CircleDiagram(
-              diagval: widget.server.stat!.mem.toInt(),
-              label: "${widget.server.stat!.mem.toInt()}%",
-              alternativeLabel: "${widget.server.stat!.memUsed.toInt()} GB",
+              diagval: stat.mem.toInt(),
+              label: "${stat.mem.toInt()}%",
+              alternativeLabel: "${stat.memUsed.toInt()} GB",
               title: "RAM",
             ),
           ),
           Flexible(
             flex: 1,
             child: CircleDiagram(
-              diagval: widget.server.stat!.storage.toInt(),
-              label: "${widget.server.stat!.storage.toInt()}%",
-              alternativeLabel: "${widget.server.stat!.storageUsed.toInt()} GB",
+              diagval: stat.storage.toInt(),
+              label: "${stat.storage.toInt()}%",
+              alternativeLabel: "${stat.storageUsed.toInt()} GB",
               title: "Disk",
             ),
           ),
@@ -157,24 +167,25 @@ class _ServerWidgetState extends State<ServerWidget> {
   }
 
   Widget _buildInfoSection(double height) {
+    final stat = widget.server.stat!;
+
     return Container(
       height: height,
       decoration: BoxDecoration(
         color: Colors.black87,
         borderRadius: BorderRadius.circular(15),
       ),
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           _buildInfoItem(
             "Temp",
-            "${widget.server.stat?.temp ?? 0}°C",
-            _getTempColor(widget.server.stat?.temp ?? 0),
+            "${stat.temp.toInt()}°C",
+            _getTempColor(stat.temp),
           ),
           _buildInfoItem(
             "Uptime",
-            widget.server.stat?.uptime ?? "N/A",
+            stat.uptime,
             Colors.grey,
           ),
         ],
@@ -193,7 +204,7 @@ class _ServerWidgetState extends State<ServerWidget> {
             label,
             style: const TextStyle(
               color: Colors.white,
-              fontSize: 16,
+              fontSize: 14,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -206,7 +217,7 @@ class _ServerWidgetState extends State<ServerWidget> {
             value,
             style: TextStyle(
               color: valueColor,
-              fontSize: 16,
+              fontSize: 14,
               fontWeight: FontWeight.w900,
               height: 0.8,
             ),
