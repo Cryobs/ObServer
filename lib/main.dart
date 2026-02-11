@@ -8,6 +8,7 @@ import 'package:pocket_ssh/services/private_key_controller.dart';
 import 'package:pocket_ssh/services/private_key_repo.dart';
 import 'package:pocket_ssh/services/settings_storage.dart';
 import 'package:pocket_ssh/ssh_core.dart';
+import 'package:pocket_ssh/widgets/add_server_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pocket_ssh/widgets/server_widget.dart';
@@ -40,12 +41,16 @@ void main() async {
         child: Template(pages: [
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 20),
-            child: Column(
-              children: [
-                ServerWidget(server:server ,online: false,),
-                SizedBox(height: 20,),
-                ServerWidget(server:server ,online: false,),
-              ],
+            child: ListView(
+              children: [Column(
+                children: [
+                  ServerWidget(server:server ,online: false,),
+                  SizedBox(height: 20,),
+                  ServerWidget(server:server ,online: false,),
+                  SizedBox(height: 20,),
+                  AddServerWidget()
+                ],
+              ),]
             ),
           ),
           Center(child: Text("Page 1", style: TextStyle(color: Colors.white),)),

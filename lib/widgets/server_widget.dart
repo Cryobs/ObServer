@@ -51,7 +51,7 @@ class _ServerWidgetState extends State<ServerWidget> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Header
+              /* Header */
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -74,7 +74,7 @@ class _ServerWidgetState extends State<ServerWidget> {
                         widget.online ? "Online" : "Offline",
                         style: TextStyle(
                           color: widget.online ? green : red,
-                          fontSize: 14,
+                          fontSize: 16,
                         ),
                       ),
                       const SizedBox(width: 6),
@@ -93,7 +93,6 @@ class _ServerWidgetState extends State<ServerWidget> {
                 height: 20,
               ),
 
-              // Main content - ВСЕГДА горизонтальная компоновка
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -168,19 +167,15 @@ class _ServerWidgetState extends State<ServerWidget> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          Flexible(
-            child: _buildInfoItem(
-              "Temp",
-              "${widget.server.stat?.temp ?? 0}°C",
-              _getTempColor(widget.server.stat?.temp ?? 0),
-            ),
+          _buildInfoItem(
+            "Temp",
+            "${widget.server.stat?.temp ?? 0}°C",
+            _getTempColor(widget.server.stat?.temp ?? 0),
           ),
-          Flexible(
-            child: _buildInfoItem(
-              "Uptime",
-              widget.server.stat?.uptime ?? "N/A",
-              Colors.grey,
-            ),
+          _buildInfoItem(
+            "Uptime",
+            widget.server.stat?.uptime ?? "N/A",
+            Colors.grey,
           ),
         ],
       ),
@@ -198,7 +193,7 @@ class _ServerWidgetState extends State<ServerWidget> {
             label,
             style: const TextStyle(
               color: Colors.white,
-              fontSize: 14,
+              fontSize: 16,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -211,8 +206,9 @@ class _ServerWidgetState extends State<ServerWidget> {
             value,
             style: TextStyle(
               color: valueColor,
-              fontSize: 14,
+              fontSize: 16,
               fontWeight: FontWeight.w900,
+              height: 0.8,
             ),
             textAlign: TextAlign.center,
             maxLines: 1,
