@@ -58,67 +58,66 @@ class _TerminalScreenState extends State<TerminalScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            Consumer<ServerController>(
-              builder: (context, controller, child) {
-                final servers = controller.getAllServers();
+          Consumer<ServerController>(
+            builder: (context, controller, child) {
+              final servers = controller.getAllServers();
 
-                return DropdownButton<Server>(
-                  value: selectedServer,
-                  hint: const Text("Select a server"),
-                  borderRadius: BorderRadius.circular(15),
-                  dropdownColor: const Color(0xFF262626),
-                  iconEnabledColor: Colors.white,
-                  padding: const EdgeInsets.all(12),
-                  items: servers.map((option) {
-                    return DropdownMenuItem(
-                      value: option,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            option.name,
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                          const SizedBox(width: 12),
-                          Text(
-                            option.host,
-                            style: const TextStyle(color: Colors.white38),
-                          ),
-                          const SizedBox(width: 12),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                option.online ? "Online" : "Offline",
-                                style: TextStyle(
-                                  color: option.online ? green : red,
-                                  fontSize: 14,
-                                ),
-                              ),
-                              const SizedBox(width: 6),
-                              CircleAvatar(
-                                radius: 5,
-                                backgroundColor: option.online ? green : red,
-                              )
-                            ],
-                          )
-                        ],
-                      ),
-                    );
-                  }).toList(),
-                  onChanged: (v) async {
-                    _cleanupConnection();
-                    setState(() {
-                      selectedServer = v;
-                    });
-                    if (v != null) {
-                      await _initTerminal();
-                    }
-                  },
-                );
-              },
-            ),
-            Expanded(
+             return DropdownButton<Server>(
+               value: selectedServer,
+               hint: Text("Select a server"),
+               borderRadius: BorderRadius.circular(15),
+               dropdownColor: const Color(0xFF262626),
+               iconEnabledColor: Colors.white,
+               padding: const EdgeInsets.all(12),
+               items: servers.map((option) {
+                 return DropdownMenuItem(
+                   value: option,
+                   child: Row(
+                     mainAxisAlignment: MainAxisAlignment.center,
+                     children: [
+                       Text(
+                         option.name,
+                         style: const TextStyle(color: Colors.white),
+                       ),
+                       const SizedBox(width: 12,),
+                       Text(
+                         option.host,
+                         style: const TextStyle(color: Colors.white38),
+                       ),
+                       const SizedBox(width: 12,),
+                       Row(
+                         mainAxisSize: MainAxisSize.min,
+                         children: [
+                           Text(
+                             option.online ? "Online" : "Offline",
+                             style: TextStyle(
+                               color: option.online ? green : red,
+                               fontSize: 14,
+                             ),
+                           ),
+                           const SizedBox(width: 6),
+                           CircleAvatar(
+                             radius: 5,
+                             backgroundColor: option.online ? green : red,
+                           )
+                         ],
+                       )
+                     ],
+                   ),
+                 );
+               }).toList(),
+               onChanged: (v) {
+                 session?.close();
+                 selectedServer?.disconnect();
+                 setState(() {
+                   selectedServer = v;
+                 });
+                 _initTerminal();
+               },
+             );
+            },
+          ),
+          Expanded(
               child: TerminalView(
                 padding: const EdgeInsets.all(5),
                 terminal,
