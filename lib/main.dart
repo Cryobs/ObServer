@@ -31,8 +31,8 @@ void main() async {
             create: (_) => PrivateKeyController(privateKeyRepo),
           ),
         ],
-        child:  Template(pages: [
-          Center(child: Text("Page 0", style: TextStyle(color: Colors.white),)),
+        child: Template(pages: [
+          const Center(child: Text("Page 0", style: TextStyle(color: Colors.white),)),
           Center(child: Text("Page 1", style: TextStyle(color: Colors.white),)),
           GridView.count(
             padding: const EdgeInsets.all(19),
