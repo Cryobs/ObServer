@@ -112,6 +112,7 @@ class Server {
 
       status = ServerStatus.connected;
     } catch (e) {
+      print(sshKey);
       status = ServerStatus.error;
       client = null;
       print("SSH ERROR: $e");
@@ -183,6 +184,11 @@ class Server {
   }
 
   Future<void> updateStatsOptimized() async {
+    if (status != ServerStatus.connected || client == null) {
+      print("⚠️ Cannot update stats - not connected to $name");
+      return;
+    }
+
     try {
       final result = (await exec(ALL_STATS_CMD)).trim();
       final parts = result.split('|');
@@ -193,13 +199,16 @@ class Server {
         _parseStorage(parts[2]);
         _parseUptime(parts[3]);
         _parseTemp(parts[4]);
-      } else {
-        await updateStats();
       }
     } catch (e) {
-      print("OPTIMIZED STATS ERROR: $e");
-      await updateStats();
-    }
+      if (e.toString().contains('SSHAuthFailError')) {
+        print("🔒 Auth error for $name - disconnecting");
+        status = ServerStatus.error;
+        client = null;
+        return;
+      }
+
+      print("OPTIMIZED STATS ERROR for $name: $e");    }
   }
 
   void _parseCPU(String cpuStr) {
@@ -281,132 +290,6 @@ class Server {
     }
   }
 
-  Future<void> getCPU() async {
-    try {
-      final result = (await exec(CPU_USAGE_CMD)).trim();
-      final cpuValue = double.tryParse(result);
-
-      if (cpuValue != null && cpuValue >= 0 && cpuValue <= 100) {
-        stat?.cpu = cpuValue;
-      } else {
-        try {
-          final altResult = (await exec(CPU_USAGE_CMD_ALT)).trim();
-          final altCpuValue = double.tryParse(altResult);
-          if (altCpuValue != null && altCpuValue >= 0 && altCpuValue <= 100) {
-            stat?.cpu = altCpuValue;
-          } else {
-            stat?.cpu = 0;
-          }
-        } catch (e) {
-          stat?.cpu = 0;
-        }
-      }
-    } catch (e) {
-      print("CPU ERROR: $e");
-      stat?.cpu = 0;
-    }
-  }
-
-  Future<void> getMEM() async {
-    try {
-      final result = (await exec(MEM_USAGE_CMD)).trim();
-      final parts = result.split(" ");
-      if (parts.length == 2) {
-        final used = double.tryParse(parts[0]);
-        final total = double.tryParse(parts[1]);
-
-        if (used != null && total != null && total > 0) {
-          stat?.memUsed = used / 1024 / 1024 / 1024;
-          stat?.memTotal = total / 1024 / 1024 / 1024;
-          stat?.mem = (used / total) * 100;
-        } else {
-          stat?.mem = 0;
-          stat?.memUsed = 0;
-          stat?.memTotal = 0;
-        }
-      }
-    } catch (e) {
-      print("MEM ERROR: $e");
-      stat?.mem = 0;
-    }
-  }
-
-  Future<void> getStorage() async {
-    try {
-      final result = (await exec(STORAGE_USAGE_CMD)).trim();
-      final parts = result.split(" ");
-      if (parts.length == 2) {
-        final used = double.tryParse(parts[0]);
-        final total = double.tryParse(parts[1]);
-
-        if (used != null && total != null && total > 0) {
-          stat?.storageUsed = used / 1024 / 1024 / 1024;
-          stat?.storageTotal = total / 1024 / 1024 / 1024;
-          stat?.storage = (used / total) * 100;
-        } else {
-          stat?.storage = 0;
-          stat?.storageUsed = 0;
-          stat?.storageTotal = 0;
-        }
-      }
-    } catch (e) {
-      print("STORAGE ERROR: $e");
-      stat?.storage = 0;
-    }
-  }
-
-  Future<void> getUptime() async {
-    try {
-      final output = (await exec(UPTIME_CMD)).trim();
-      final parts = output.split(RegExp(r',?\s+'));
-
-      bool found = false;
-      for (int i = 1; i < parts.length; i++) {
-        if (parts[i].startsWith('day')) {
-          stat?.uptime = '${parts[i - 1]} d';
-          found = true;
-          break;
-        } else if (parts[i].startsWith('hour')) {
-          stat?.uptime = '${parts[i - 1]} h';
-          found = true;
-          break;
-        } else if (parts[i].startsWith('minute')) {
-          stat?.uptime = '${parts[i - 1]} m';
-          found = true;
-          break;
-        }
-      }
-
-      if (!found) {
-        stat?.uptime = "?";
-      }
-    } catch (e) {
-      print("UPTIME ERROR: $e");
-      stat?.uptime = "?";
-    }
-  }
-
-  Future<void> getTemp() async {
-    try {
-      var temp = (await exec(TEMP_CMD)).trim();
-      if (temp.isNotEmpty) {
-        final tempValue = double.tryParse(temp);
-        stat?.temp = tempValue != null ? tempValue / 1000 : 0;
-      } else {
-        stat?.temp = 0;
-      }
-    } catch (e) {
-      print("TEMP ERROR: $e");
-      stat?.temp = 0;
-    }
-  }
-  Future<void> updateStats() async {
-    await getCPU();
-    await getMEM();
-    await getStorage();
-    await getUptime();
-    await getTemp();
-  }
 }
 
 class Statistics {
