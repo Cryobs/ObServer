@@ -16,6 +16,8 @@ class ServerList extends StatefulWidget {
 }
 
 class _ServerListState extends State<ServerList> {
+  bool _isAutoConnecting = false;
+
   @override
   void initState() {
     super.initState();
@@ -218,7 +220,7 @@ class _ServerListState extends State<ServerList> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error deleting server: $e'),
-            backgroundColor: const Color(0xFFE9220C),
+            backgroundColor: Color(0xFFE9220C),
           ),
         );
       }
@@ -226,18 +228,41 @@ class _ServerListState extends State<ServerList> {
   }
 
   void _connectToServer(BuildContext context, Server server) async {
+    if (!mounted) return;
+
     final controller = context.read<ServerController>();
-    await controller.connectToServer(server.id);
+
+    try {
+      await controller.connectToServer(server.id);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Connection failed: $e'),
+            backgroundColor: const Color(0xFFE9220C),
+          ),
+        );
+      }
+    }
   }
 
-  void _autoConnectServers() {
+  void _autoConnectServers() async {
+    if (_isAutoConnecting) return;
+    _isAutoConnecting = true;
+
     final controller = context.read<ServerController>();
     final servers = controller.getAllServers();
 
     for (final server in servers) {
       if (server.status != ServerStatus.connected) {
-        controller.connectToServer(server.id);
+        try {
+          await controller.connectToServer(server.id);
+        } catch (error) {
+          print("Auto-connect failed for ${server.name}: $error");
+        }
       }
     }
+
+    _isAutoConnecting = false;
   }
 }

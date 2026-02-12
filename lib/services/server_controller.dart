@@ -51,7 +51,7 @@ class ServerController extends ChangeNotifier {
       String? sshKeyContent;
       if (serverModel.sshKeyId != null) {
         final key = privateKeyRepo.getById(serverModel.sshKeyId!);
-        sshKeyContent = key?.privateKey;
+        sshKeyContent = key?.key;
       }
 
       final server = Server(
@@ -75,7 +75,7 @@ class ServerController extends ChangeNotifier {
     String? sshKeyContent;
     if (serverModel.sshKeyId != null) {
       final key = privateKeyRepo.getById(serverModel.sshKeyId!);
-      sshKeyContent = key?.privateKey;
+      sshKeyContent = key?.key;
     }
 
     final server = Server(
@@ -106,7 +106,7 @@ class ServerController extends ChangeNotifier {
       String? sshKeyContent;
       if (serverModel.sshKeyId != null) {
         final key = privateKeyRepo.getById(serverModel.sshKeyId!);
-        sshKeyContent = key?.privateKey;
+        sshKeyContent = key?.key;
       }
 
       final server = Server(
