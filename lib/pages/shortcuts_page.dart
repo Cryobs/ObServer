@@ -12,22 +12,22 @@ class ShortcutsPage extends StatefulWidget {
   State<ShortcutsPage> createState() => _ShortcutsPageState();
 }
 
-class _ShortcutsPageState extends State<ShortcutsPage> {
+class _ShortcutsPageState extends State<ShortcutsPage>
+    with AutomaticKeepAliveClientMixin {
   final ShortcutsRepository _repo = ShortcutsRepository();
-
   List<ShortcutModel> _shortcuts = [];
 
-  // =========================
-  // INIT
-  // =========================
   @override
   void initState() {
     super.initState();
     _load();
   }
 
+  @override
+  bool get wantKeepAlive => true;
+
   // =========================
-  // LOAD DATA FROM HIVE
+  // LOAD
   // =========================
   Future<void> _load() async {
     await _repo.init();
@@ -37,23 +37,39 @@ class _ShortcutsPageState extends State<ShortcutsPage> {
   }
 
   // =========================
-  // ADD SHORTCUT
+  // ADD
   // =========================
   Future<void> _addShortcut() async {
-    final refreshed = await Navigator.push(
+    final refresh = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => const ShortcutFormPage(),
       ),
     );
 
-    if (refreshed == true) {
+    if (refresh == true) {
       _load();
     }
   }
 
   // =========================
-  // REMOVE SHORTCUT
+  // EDIT
+  // =========================
+  Future<void> _editShortcut(ShortcutModel shortcut) async {
+    final refresh = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ShortcutFormPage(shortcut: shortcut),
+      ),
+    );
+
+    if (refresh == true) {
+      _load();
+    }
+  }
+
+  // =========================
+  // DELETE
   // =========================
   Future<void> _removeShortcut(String id) async {
     await _repo.remove(id);
@@ -65,70 +81,25 @@ class _ShortcutsPageState extends State<ShortcutsPage> {
   // =========================
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     return GridView.count(
       padding: const EdgeInsets.all(19),
       crossAxisCount: 2,
       crossAxisSpacing: 16,
       mainAxisSpacing: 16,
       children: [
-        // =========================
-        // SHORTCUT TILES
-        // =========================
+        /// ISTNIEJĄCE SKRÓTY
         ..._shortcuts.map(
-              (shortcut) => EditableShortcutTile(
-            shortcut: shortcut,
-
-            /// EDIT
-            onEdit: () async {
-              final refreshed = await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => ShortcutFormPage(shortcut: shortcut),
-                ),
-              );
-
-              if (refreshed == true) {
-                _load();
-              }
-            },
-
-            /// DELETE
-            onDelete: () async {
-              final confirmed = await showDialog<bool>(
-                context: context,
-                builder: (_) => AlertDialog(
-                  title: const Text('Delete shortcut'),
-                  content: const Text(
-                    'Are you sure you want to delete this shortcut?',
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context, false),
-                      child: const Text('Cancel'),
-                    ),
-                    ElevatedButton(
-                      onPressed: () => Navigator.pop(context, true),
-                      child: const Text('Delete'),
-                    ),
-                  ],
-                ),
-              );
-
-              if (confirmed == true) {
-                _removeShortcut(shortcut.id);
-              }
-            },
-
-            /// CHANGE ORDER (NA RAZIE PLACEHOLDER)
-            onChangeOrder: () {
-              // TODO: drag & drop
-            },
+              (s) => EditableShortcutTile(
+            key: ValueKey(s.id),
+            shortcut: s,
+            onEdit: () => _editShortcut(s),
+            onDelete: () => _removeShortcut(s.id),
           ),
         ),
 
-        // =========================
-        // ADD TILE
-        // =========================
+        /// ➕ ADD TILE
         AddShortcutTile(
           onAdd: _addShortcut,
         ),
