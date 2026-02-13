@@ -16,10 +16,14 @@ class _ShortcutFormPageState extends State<ShortcutFormPage> {
   final _repo = ShortcutsRepository();
 
   late TextEditingController _titleController;
+  late TextEditingController _hexController;
+
   late IconData _icon;
   late Color _color;
 
   Color _tempColor = Colors.blue;
+
+  bool get isEdit => widget.shortcut != null;
 
   final List<IconData> _icons = [
     Icons.apps,
@@ -29,8 +33,6 @@ class _ShortcutFormPageState extends State<ShortcutFormPage> {
     Icons.web,
     Icons.terminal,
   ];
-
-  bool get isEdit => widget.shortcut != null;
 
   @override
   void initState() {
@@ -44,12 +46,17 @@ class _ShortcutFormPageState extends State<ShortcutFormPage> {
     } else {
       _titleController = TextEditingController();
       _icon = Icons.apps;
-      _color = Colors.blue;
+      _color = Colors.deepPurple;
     }
 
     _tempColor = _color;
+    _hexController =
+        TextEditingController(text: _color.value.toRadixString(16).substring(2));
   }
 
+  // =========================
+  // SAVE
+  // =========================
   Future<void> _save() async {
     if (_titleController.text.trim().isEmpty) return;
 
@@ -63,28 +70,67 @@ class _ShortcutFormPageState extends State<ShortcutFormPage> {
 
       await _repo.update(widget.shortcut!);
     } else {
+      final existing = _repo.getAll();
+
       final shortcut = ShortcutModel(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         title: _titleController.text,
         iconCodePoint: _icon.codePoint,
         colorValue: _color.value,
+        order: existing.length,
       );
+
 
       await _repo.add(shortcut);
     }
 
-    Navigator.pop(context, true); // refresh
+    Navigator.pop(context, true);
   }
 
+  // =========================
+  // COLOR PICKER
+  // =========================
   void _pickColor() {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Choose color'),
-        content: ColorPicker(
-          pickerColor: _tempColor,
-          onColorChanged: (c) => setState(() => _tempColor = c),
-          enableAlpha: false,
+        backgroundColor: Colors.grey[900],
+        title: const Text('Pick color', style: TextStyle(color: Colors.white)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ColorPicker(
+              pickerColor: _tempColor,
+              onColorChanged: (c) {
+                setState(() {
+                  _tempColor = c;
+                  _hexController.text =
+                      c.value.toRadixString(16).substring(2);
+                });
+              },
+              enableAlpha: false,
+              labelTypes: const [],
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _hexController,
+              style: const TextStyle(color: Colors.white),
+              decoration: const InputDecoration(
+                prefixText: '#',
+                labelText: 'HEX',
+                labelStyle: TextStyle(color: Colors.white70),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white24),
+                ),
+              ),
+              onSubmitted: (value) {
+                if (value.length == 6) {
+                  final color = Color(int.parse('FF$value', radix: 16));
+                  setState(() => _tempColor = color);
+                }
+              },
+            ),
+          ],
         ),
         actions: [
           TextButton(
@@ -96,21 +142,31 @@ class _ShortcutFormPageState extends State<ShortcutFormPage> {
               setState(() => _color = _tempColor);
               Navigator.pop(context);
             },
-            child: const Text('Save'),
+            child: const Text('Apply'),
           ),
         ],
       ),
     );
   }
 
+  // =========================
+  // UI
+  // =========================
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: Text(isEdit ? 'Edit shortcut' : 'Create shortcut'),
         backgroundColor: Colors.black,
+        title: Text(isEdit ? 'Edit Shortcut' : 'Add Shortcut'),
         actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'CANCEL',
+              style: TextStyle(color: Colors.white54),
+            ),
+          ),
           TextButton(
             onPressed: _save,
             child: const Text(
@@ -157,7 +213,7 @@ class _ShortcutFormPageState extends State<ShortcutFormPage> {
 
             const SizedBox(height: 24),
 
-            // TITLE
+            // NAME
             TextField(
               controller: _titleController,
               style: const TextStyle(color: Colors.white),
@@ -190,7 +246,7 @@ class _ShortcutFormPageState extends State<ShortcutFormPage> {
 
             const SizedBox(height: 24),
 
-            // COLOR PICKER
+            // COLOR
             ElevatedButton.icon(
               onPressed: _pickColor,
               icon: const Icon(Icons.color_lens),

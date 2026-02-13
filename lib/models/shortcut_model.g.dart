@@ -1,10 +1,6 @@
-// GENERATED CODE - DO NOT MODIFY BY HAND
+
 
 part of 'shortcut_model.dart';
-
-// **************************************************************************
-// TypeAdapterGenerator
-// **************************************************************************
 
 class ShortcutModelAdapter extends TypeAdapter<ShortcutModel> {
   @override
@@ -14,7 +10,8 @@ class ShortcutModelAdapter extends TypeAdapter<ShortcutModel> {
   ShortcutModel read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
-      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+      for (int i = 0; i < numOfFields; i++)
+        reader.readByte(): reader.read(),
     };
 
     return ShortcutModel(
@@ -22,13 +19,14 @@ class ShortcutModelAdapter extends TypeAdapter<ShortcutModel> {
       title: fields[1] as String,
       iconCodePoint: fields[2] as int,
       colorValue: fields[3] as int,
+      order: fields[4] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, ShortcutModel obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -36,16 +34,8 @@ class ShortcutModelAdapter extends TypeAdapter<ShortcutModel> {
       ..writeByte(2)
       ..write(obj.iconCodePoint)
       ..writeByte(3)
-      ..write(obj.colorValue);
+      ..write(obj.colorValue)
+      ..writeByte(4)
+      ..write(obj.order);
   }
-
-  @override
-  int get hashCode => typeId.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-          other is ShortcutModelAdapter &&
-              runtimeType == other.runtimeType &&
-              typeId == other.typeId;
 }

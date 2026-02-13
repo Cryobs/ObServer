@@ -22,8 +22,8 @@ class EditableShortcutTile extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(22),
         gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
           colors: [
             _lighten(shortcut.color, 0.15),
             shortcut.color,
@@ -33,7 +33,7 @@ class EditableShortcutTile extends StatelessWidget {
       ),
       child: Stack(
         children: [
-          /// IKONA – LEWY GÓRNY
+          /// IKONA
           Positioned(
             top: 0,
             left: 0,
@@ -44,9 +44,9 @@ class EditableShortcutTile extends StatelessWidget {
             ),
           ),
 
-          /// MENU (…) – PRAWY GÓRNY
+          /// MENU
           Positioned(
-            top: 0,
+            top: -8,
             right: 0,
             child: PopupMenuButton<String>(
               padding: EdgeInsets.zero,
@@ -71,7 +71,7 @@ class EditableShortcutTile extends StatelessWidget {
             ),
           ),
 
-          /// TEKST – ŚRODEK
+          /// TEKST
           Center(
             child: Text(
               shortcut.title,
@@ -118,7 +118,7 @@ class EditableShortcutTile extends StatelessWidget {
   }
 
   // =========================
-  // UI HELPERS
+  // UI
   // =========================
   Widget _menuDot() => Container(
     width: 28,
@@ -136,7 +136,7 @@ class EditableShortcutTile extends StatelessWidget {
 }
 
 /// =========================
-/// GRADIENT HELPERS
+/// GRADIENT
 /// =========================
 Color _lighten(Color color, double amount) {
   final hsl = HSLColor.fromColor(color);

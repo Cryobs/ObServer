@@ -14,7 +14,7 @@ class ShortcutsPage extends StatefulWidget {
 
 class _ShortcutsPageState extends State<ShortcutsPage>
     with AutomaticKeepAliveClientMixin {
-  final ShortcutsRepository _repo = ShortcutsRepository();
+  final _repo = ShortcutsRepository();
   List<ShortcutModel> _shortcuts = [];
 
   @override
@@ -26,9 +26,6 @@ class _ShortcutsPageState extends State<ShortcutsPage>
   @override
   bool get wantKeepAlive => true;
 
-  // =========================
-  // LOAD
-  // =========================
   Future<void> _load() async {
     await _repo.init();
     setState(() {
@@ -36,49 +33,31 @@ class _ShortcutsPageState extends State<ShortcutsPage>
     });
   }
 
-  // =========================
-  // ADD
-  // =========================
   Future<void> _addShortcut() async {
     final refresh = await Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => const ShortcutFormPage(),
-      ),
+      MaterialPageRoute(builder: (_) => const ShortcutFormPage()),
     );
 
-    if (refresh == true) {
-      _load();
-    }
+    if (refresh == true) _load();
   }
 
-  // =========================
-  // EDIT
-  // =========================
-  Future<void> _editShortcut(ShortcutModel shortcut) async {
+  Future<void> _editShortcut(ShortcutModel s) async {
     final refresh = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => ShortcutFormPage(shortcut: shortcut),
+        builder: (_) => ShortcutFormPage(shortcut: s),
       ),
     );
 
-    if (refresh == true) {
-      _load();
-    }
+    if (refresh == true) _load();
   }
 
-  // =========================
-  // DELETE
-  // =========================
   Future<void> _removeShortcut(String id) async {
     await _repo.remove(id);
     _load();
   }
 
-  // =========================
-  // UI
-  // =========================
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -89,21 +68,47 @@ class _ShortcutsPageState extends State<ShortcutsPage>
       crossAxisSpacing: 16,
       mainAxisSpacing: 16,
       children: [
-        /// ISTNIEJĄCE SKRÓTY
-        ..._shortcuts.map(
-              (s) => EditableShortcutTile(
-            key: ValueKey(s.id),
-            shortcut: s,
-            onEdit: () => _editShortcut(s),
-            onDelete: () => _removeShortcut(s.id),
-          ),
-        ),
+        ..._shortcuts.map((s) {
+          return LongPressDraggable<ShortcutModel>(
+            data: s,
+            feedback: Material(
+              color: Colors.transparent,
+              child: SizedBox(
+                width: 175,
+                height: 175,
+                child: _tile(s),
+              ),
+            ),
+            childWhenDragging: Opacity(
+              opacity: 0.4,
+              child: _tile(s),
+            ),
+            child: DragTarget<ShortcutModel>(
+              onAccept: (dragged) {
+                setState(() {
+                  final from = _shortcuts.indexOf(dragged);
+                  final to = _shortcuts.indexOf(s);
+                  _shortcuts.removeAt(from);
+                  _shortcuts.insert(to, dragged);
+                });
+                _repo.saveOrder(_shortcuts);
+              },
+              builder: (_, __, ___) => _tile(s),
+            ),
+          );
+        }),
 
-        /// ➕ ADD TILE
-        AddShortcutTile(
-          onAdd: _addShortcut,
-        ),
+        AddShortcutTile(onAdd: _addShortcut),
       ],
+    );
+  }
+
+  Widget _tile(ShortcutModel s) {
+    return EditableShortcutTile(
+      key: ValueKey(s.id),
+      shortcut: s,
+      onEdit: () => _editShortcut(s),
+      onDelete: () => _removeShortcut(s.id),
     );
   }
 }

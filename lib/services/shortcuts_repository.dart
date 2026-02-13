@@ -3,7 +3,6 @@ import 'package:pocket_ssh/models/shortcut_model.dart';
 
 class ShortcutsRepository {
   static const String _boxName = 'shortcuts';
-
   late Box<ShortcutModel> _box;
 
   // =========================
@@ -21,11 +20,9 @@ class ShortcutsRepository {
   // READ
   // =========================
   List<ShortcutModel> getAll() {
-    return _box.values.toList();
-  }
-
-  ShortcutModel? getById(String id) {
-    return _box.get(id);
+    final list = _box.values.toList();
+    list.sort((a, b) => a.order.compareTo(b.order));
+    return list;
   }
 
   // =========================
@@ -39,7 +36,6 @@ class ShortcutsRepository {
   // UPDATE
   // =========================
   Future<void> update(ShortcutModel shortcut) async {
-    // Hive: put = add OR update
     await _box.put(shortcut.id, shortcut);
   }
 
@@ -54,11 +50,9 @@ class ShortcutsRepository {
   // SAVE ORDER (DRAG & DROP)
   // =========================
   Future<void> saveOrder(List<ShortcutModel> ordered) async {
-    // czyścimy box, żeby kolejność była identyczna
-    await _box.clear();
-
-    for (final shortcut in ordered) {
-      await _box.put(shortcut.id, shortcut);
+    for (int i = 0; i < ordered.length; i++) {
+      ordered[i].order = i;
+      await ordered[i].save(); // 👈 HiveObject
     }
   }
 }
