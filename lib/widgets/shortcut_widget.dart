@@ -47,7 +47,7 @@ class EditableShortcutTile extends StatelessWidget {
           /// MENU
           Positioned(
             top: -8,
-            right: 0,
+            right: -5,
             child: PopupMenuButton<String>(
               padding: EdgeInsets.zero,
               icon: _menuDot(),
