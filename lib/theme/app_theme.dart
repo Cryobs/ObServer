@@ -11,7 +11,7 @@ class AppColors {
   
   /* Text */
   static const textPrimaryDark = Color(0xFFFFFFFF);
-  static const textSecondaryDark = Color(0xFF676767);
+  static const textSecondaryDark = Color(0xFFBDBDBD);
 
   /* Additional */
   static const warningDark = Color(0xFFE5A50A);
@@ -32,6 +32,17 @@ class AppTextStyles {
     height: 1.3,
   );
 
+  static const h2 = TextStyle(
+    fontSize: 24,
+    letterSpacing: -0.5,
+    height: 1.3,
+  );
+
+  static const h3 = TextStyle(
+    fontSize: 18,
+    letterSpacing: -0.5,
+    height: 1.3,
+  );
   /* Body */
   static const bodyLarge = TextStyle(
     fontSize: 16,
@@ -71,6 +82,9 @@ class AppTheme {
     scaffoldBackgroundColor: AppColors.backgroundDark,
 
     textTheme: TextTheme(
+      titleLarge: AppTextStyles.h1.copyWith(color: AppColors.textPrimaryDark),
+      titleMedium: AppTextStyles.h2.copyWith(color: AppColors.textPrimaryDark),
+      titleSmall: AppTextStyles.h3.copyWith(color: AppColors.textPrimaryDark),
       displayLarge: AppTextStyles.h1.copyWith(color: AppColors.textPrimaryDark),
       bodyLarge: AppTextStyles.bodyLarge.copyWith(color: AppColors.textPrimaryDark),
       bodyMedium: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimaryDark),
@@ -78,12 +92,21 @@ class AppTheme {
     ),
 
     dividerColor: AppColors.dividerDark,
-    dividerTheme: DividerThemeData(
+    dividerTheme: const DividerThemeData(
       color: AppColors.dividerDark,
       thickness: 1,
       indent: 0,
       endIndent: 0,
       space: 20,
+    ),
+
+
+    bottomSheetTheme: const BottomSheetThemeData(
+      backgroundColor: AppColors.surfaceDark,
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
     ),
 
     elevatedButtonTheme: ElevatedButtonThemeData(
