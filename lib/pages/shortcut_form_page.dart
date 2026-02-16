@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:pocket_ssh/models/shortcut_model.dart';
 import 'package:pocket_ssh/services/shortcuts_repository.dart';
+import 'package:pocket_ssh/widgets/shortcut_widget.dart';
 
 class ShortcutFormPage extends StatefulWidget {
   final ShortcutModel? shortcut;
@@ -181,34 +182,18 @@ class _ShortcutFormPageState extends State<ShortcutFormPage> {
         child: Column(
           children: [
             // PREVIEW
-            Container(
-              width: 175,
-              height: 175,
-              decoration: BoxDecoration(
-                color: _color,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Stack(
-                children: [
-                  Positioned(
-                    top: 12,
-                    left: 12,
-                    child: Icon(_icon, color: Colors.white, size: 28),
-                  ),
-                  Center(
-                    child: Text(
-                      _titleController.text.isEmpty
+            EditableShortcutTile(
+              shortcut: ShortcutModel(
+                  id: "Preview_Shortcut",
+                  title: _titleController.text.isEmpty
                           ? 'Preview'
                           : _titleController.text,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ],
+                  iconCodePoint: _icon.codePoint,
+                  colorValue: _color.value,
+                  order: 1
               ),
+              onEdit: () {  },
+              onDelete: () {  },
             ),
 
             const SizedBox(height: 24),
