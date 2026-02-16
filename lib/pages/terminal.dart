@@ -4,6 +4,7 @@ import 'package:pocket_ssh/services/server_controller.dart';
 import 'package:pocket_ssh/ssh_core.dart';
 import 'package:pocket_ssh/theme/app_theme.dart';
 import 'package:provider/provider.dart';
+import 'dart:async';
 import 'dart:convert';
 import 'package:xterm/xterm.dart';
 
@@ -24,8 +25,6 @@ class _TerminalScreenState extends State<TerminalScreen> {
   static const Color warningColor = AppColors.warningDark;
   static const Color errorColor = AppColors.errorDark;
 
-
-
   @override
   void initState() {
     super.initState();
@@ -37,14 +36,22 @@ class _TerminalScreenState extends State<TerminalScreen> {
 
   @override
   void dispose() {
+    _cleanupConnection();
+    super.dispose();
+  }
+
+  void _cleanupConnection() {
+    _stdoutSubscription?.cancel();
+    _stderrSubscription?.cancel();
+    _stdoutSubscription = null;
+    _stderrSubscription = null;
     session?.close();
     selectedServer?.disconnect();
-    super.dispose();
+    _isConnected = false;
   }
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -109,14 +116,14 @@ class _TerminalScreenState extends State<TerminalScreen> {
           ),
           Expanded(
               child: TerminalView(
-                padding: EdgeInsets.all(5),
+                padding: const EdgeInsets.all(5),
                 terminal,
                 autofocus: true,
                 theme: TerminalThemes.whiteOnBlack,
               ),
             ),
           ],
-        )
+        ),
       ),
     );
   }
@@ -168,38 +175,56 @@ class _TerminalScreenState extends State<TerminalScreen> {
       terminal.buffer.clear();
       terminal.buffer.setCursor(0, 0);
 
-      session!.stdout.cast<List<int>>().transform(const Utf8Decoder()).listen(
+      _stdoutSubscription = session!.stdout
+          .cast<List<int>>()
+          .transform(const Utf8Decoder())
+          .listen(
             (data) {
-          terminal.write(data);
+          if (mounted) {
+            terminal.write(data);
+          }
         },
         onError: (error) {
-          terminal.write('\r\nSTDOUT Error: $error\r\n');
+          if (mounted) {
+            terminal.write('\r\nSTDOUT Error: $error\r\n');
+          }
         },
         onDone: () {
-          terminal.write('\r\nConnection closed\r\n');
-          setState(() {
-            _isConnected = false;
-          });
+          if (mounted) {
+            terminal.write('\r\nConnection closed\r\n');
+            setState(() {
+              _isConnected = false;
+            });
+          }
         },
+        cancelOnError: true,
       );
 
-      session!.stderr.cast<List<int>>().transform(const Utf8Decoder()).listen(
+      _stderrSubscription = session!.stderr
+          .cast<List<int>>()
+          .transform(const Utf8Decoder())
+          .listen(
             (data) {
-          terminal.write(data);
+          if (mounted) {
+            terminal.write(data);
+          }
         },
         onError: (error) {
-          terminal.write('\r\nSTDERR Error: $error\r\n');
+          if (mounted) {
+            terminal.write('\r\nSTDERR Error: $error\r\n');
+          }
         },
+        cancelOnError: true,
       );
 
       terminal.write('Connected!\r\n');
-
     } catch (e) {
       terminal.write('\r\nConnection error: $e\r\n');
-      setState(() {
-        _isConnected = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isConnected = false;
+        });
+      }
     }
   }
-
 }

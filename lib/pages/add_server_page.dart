@@ -45,7 +45,7 @@ class _AddServerPageState extends State<AddServerPage> {
   Future<void> _loadServerIfEditing() async {
     if (_isEditing) {
       final controller = context.read<ServerController>();
-      final serverModel = controller.getServer(widget.serverId!);
+      final serverModel = controller.getServerModel(widget.serverId!);
 
       if (serverModel != null) {
         _nameController.text = serverModel.name;
@@ -54,10 +54,10 @@ class _AddServerPageState extends State<AddServerPage> {
         _usernameController.text = serverModel.username;
         _authType = serverModel.authType == 0 ? 'Password' : 'SSH Key';
 
-        if (serverModel.authType == 1 && serverModel.sshKey != null) {
-          _selectedKeyId = serverModel.sshKey;
+        if (serverModel.authType == 1 && serverModel.sshKeyId != null) {
+          _selectedKeyId = serverModel.sshKeyId;
           final privateKeyController = context.read<PrivateKeyController>();
-          final key = privateKeyController.getKey(serverModel.sshKey!);
+          final key = privateKeyController.getKey(serverModel.sshKeyId!);
           _selectedKeyName = key?.name ?? 'None';
         }
 
@@ -68,7 +68,6 @@ class _AddServerPageState extends State<AddServerPage> {
               _passwordController.text = password;
             }
           } catch (e) {
-            // Password not found in secure storage
           }
         }
       }
@@ -90,7 +89,6 @@ class _AddServerPageState extends State<AddServerPage> {
   }
 
   bool _isValidIP(String host) {
-    // IPv4
     final ipv4Pattern = RegExp(
         r'^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.){3}(25[0-5]|(2[0-4]|1\d|[1-9]|)\d)$'
     );
@@ -167,7 +165,7 @@ class _AddServerPageState extends State<AddServerPage> {
 
     if (_authType == 'Password') {
       if (_isEditing) {
-        final existingServer = controller.getServer(widget.serverId!);
+        final existingServer = controller.getServerModel(widget.serverId!);
         passwordKey = existingServer?.passwordKey ?? 'server_password_${DateTime.now().millisecondsSinceEpoch}';
       } else {
         passwordKey = 'server_password_${DateTime.now().millisecondsSinceEpoch}';
@@ -220,7 +218,7 @@ class _AddServerPageState extends State<AddServerPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
-            child: const Text("Cancel"),
+            child: const Text("Cancel", style: TextStyle(color: Colors.white)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, true),
@@ -232,10 +230,10 @@ class _AddServerPageState extends State<AddServerPage> {
 
     if (confirm == true && mounted) {
       try {
-        final server = controller.getServer(widget.serverId!);
+        final serverModel = controller.getServerModel(widget.serverId!);
 
-        if (server?.passwordKey != null) {
-          await SecureStorageService.deleteValue(server!.passwordKey!);
+        if (serverModel?.passwordKey != null) {
+          await SecureStorageService.deleteValue(serverModel!.passwordKey!);
         }
 
         await controller.deleteServer(widget.serverId!);
@@ -247,7 +245,6 @@ class _AddServerPageState extends State<AddServerPage> {
             );
             Navigator.pop(context, true);
           } catch (_) {
-            // Ignore if context is deactivated
             Navigator.pop(context, true);
           }
         }
@@ -256,7 +253,6 @@ class _AddServerPageState extends State<AddServerPage> {
           try {
             _showSnackBar("Error deleting server: $e");
           } catch (_) {
-            // Ignore if context is deactivated
           }
         }
       }
@@ -270,7 +266,6 @@ class _AddServerPageState extends State<AddServerPage> {
           SnackBar(content: Text(message)),
         );
       } catch (_) {
-        // Ignore if context is deactivated
       }
     }
   }
@@ -388,8 +383,13 @@ class _AddServerPageState extends State<AddServerPage> {
                                 if (value == 'None') {
                                   _selectedKeyId = null;
                                 } else {
-                                  final key = keys.firstWhere((k) => k.name == value);
-                                  _selectedKeyId = key.id;
+                                  try {
+                                    final key = keys.firstWhere((k) => k.name == value);
+                                    _selectedKeyId = key.id;
+                                  } catch (e) {
+                                    print("Key not found: $e");
+                                    _selectedKeyId = null;
+                                  }
                                 }
                               });
                             },

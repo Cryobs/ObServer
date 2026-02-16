@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:pocket_ssh/theme/app_theme.dart';
 import 'package:pocket_ssh/widgets/bottom_bar.dart';
+import 'package:pocket_ssh/pages/shortcuts_page.dart';
 
 
-
-final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
 class Template extends StatefulWidget {
   final List<Widget> pages;
@@ -25,7 +24,6 @@ class _TemplateState extends State<Template> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      scaffoldMessengerKey: scaffoldMessengerKey,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.dark,
       home: Scaffold(

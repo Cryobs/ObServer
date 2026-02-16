@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 
 class InputList extends StatelessWidget {
   final String label;
-  final List<String> options;
-  final String value;
-  final ValueChanged<String> onChanged;
+  final List<DropdownMenuItem> items;
+  final value;
+  final ValueChanged onChanged;
 
   const InputList({
     super.key,
     required this.label,
-    required this.options,
+    required this.items,
     required this.value,
     required this.onChanged,
   });
@@ -24,7 +24,7 @@ class InputList extends StatelessWidget {
         ),
         const Spacer(),
         DropdownButtonHideUnderline(
-          child: DropdownButton<String>(
+          child: DropdownButton(
             value: value,
             borderRadius: BorderRadius.circular(20),
             dropdownColor: Theme.of(context).canvasColor,

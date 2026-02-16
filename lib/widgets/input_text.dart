@@ -6,6 +6,7 @@ class InputText extends StatelessWidget {
   final String label;
   final String hint;
   final TextEditingController? controller;
+  final void Function(String)? onChanged;
   final TextInputType? keyboardType;
   final List<TextInputFormatter>? inputFormatters;
 
@@ -14,6 +15,7 @@ class InputText extends StatelessWidget {
     required this.label,
     required this.hint,
     this.controller,
+    this.onChanged
     this.keyboardType,
     this.inputFormatters,
   });
