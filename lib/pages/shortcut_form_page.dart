@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:pocket_ssh/models/shortcut_model.dart';
 import 'package:pocket_ssh/services/shortcuts_repository.dart';
+import 'package:pocket_ssh/widgets/input_big_text.dart';
+import 'package:pocket_ssh/widgets/input_list.dart';
+import 'package:pocket_ssh/widgets/input_text.dart';
 import 'package:pocket_ssh/widgets/shortcut_widget.dart';
 
 class ShortcutFormPage extends StatefulWidget {
@@ -199,6 +202,35 @@ class _ShortcutFormPageState extends State<ShortcutFormPage> {
             const SizedBox(height: 24),
 
             // NAME
+            InputText(label: "Name", hint: "My Shortcut", controller: _titleController, onChanged: (_) => setState(() {}),),
+            // SERVER
+            InputList(
+              label: "Server",
+              items: [DropdownMenuItem(value: "None", child: Text("None"))],
+              value: 'None',
+              onChanged: (value) {},
+            ),
+            const Divider(
+              color: Colors.white38,
+              thickness: 1,
+              indent: 0,
+              endIndent: 0,
+              height: 20,
+            ),
+
+
+            // SCRIPT
+            InputBigText(label: "Script", hint: "Write a shortcut script",),
+
+
+            const Divider(
+              color: Colors.white38,
+              thickness: 1,
+              indent: 0,
+              endIndent: 0,
+              height: 20,
+            ),
+            /*
             TextField(
               controller: _titleController,
               style: const TextStyle(color: Colors.white),
@@ -211,6 +243,7 @@ class _ShortcutFormPageState extends State<ShortcutFormPage> {
               ),
               onChanged: (_) => setState(() {}),
             ),
+             */
 
             const SizedBox(height: 24),
 
