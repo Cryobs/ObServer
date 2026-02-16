@@ -12,7 +12,7 @@ class AppColors {
   /* Text */
   static const textPrimaryDark = Color(0xFFFFFFFF);
   static const textSecondaryDark = Color(0xFFBDBDBD);
-  static const onPrimary = Colors.black;
+  static const onPrimary = Color(0xAA000000);
   static const onSurfaceVariant = Colors.white38;
 
   /* Additional */
