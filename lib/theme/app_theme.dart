@@ -7,12 +7,13 @@ class AppColors {
   static const primaryDark = Color(0xFF22C55E);
   static const backgroundDark = Color(0xFF070707);
   static const surfaceDark = Color(0xFF202020);
-  static const surfaceVariantDark = Color(0xFF070707);
+  static const surfaceVariantDark = Color(0xFF131313);
   
   /* Text */
   static const textPrimaryDark = Color(0xFFFFFFFF);
   static const textSecondaryDark = Color(0xFFBDBDBD);
   static const onPrimary = Colors.black;
+  static const onSurfaceVariant = Colors.white38;
 
   /* Additional */
   static const warningDark = Color(0xFFE5A50A);
