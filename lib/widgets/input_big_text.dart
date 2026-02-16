@@ -17,7 +17,7 @@ class InputBigText extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(color: Colors.white, fontSize: 16),
+          style: Theme.of(context).textTheme.bodyLarge,
         ),
         const SizedBox(height: 8),
         TextField(

@@ -20,21 +20,19 @@ class InputList extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(color: Colors.white, fontSize: 16),
+          style: Theme.of(context).textTheme.bodyLarge,
         ),
         const Spacer(),
         DropdownButtonHideUnderline(
           child: DropdownButton<String>(
             value: value,
             borderRadius: BorderRadius.circular(20),
-            dropdownColor: const Color(0xFF262626),
-            iconEnabledColor: Colors.white,
+            dropdownColor: Theme.of(context).canvasColor,
             items: options.map((option) {
               return DropdownMenuItem(
                 value: option,
                 child: Text(
                   option,
-                  style: const TextStyle(color: Colors.white),
                 ),
               );
             }).toList(),
