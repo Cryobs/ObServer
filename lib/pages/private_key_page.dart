@@ -221,7 +221,7 @@ class _PrivateKeyPageState extends State<PrivateKeyPage> {
                             ),
                             child: Text(
                               _isEditing ? "Update" : "Save",
-                              style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.onPrimary),
+                              style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.onPrimary, fontWeight: FontWeight.bold),
                             ),
                           ),
                         ),

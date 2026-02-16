@@ -102,6 +102,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           ),
                           child: const Text(
                             "Save",
+                            style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
                       )

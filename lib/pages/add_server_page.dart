@@ -410,7 +410,7 @@ class _AddServerPageState extends State<AddServerPage> {
                             ),
                             child: Text(
                               _isEditing ? "Update" : "Save",
-                              style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.onPrimary),
+                              style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.onPrimary, fontWeight: FontWeight.bold),
                             ),
                           ),
                         ),
