@@ -55,7 +55,48 @@ class AppTextStyles {
 class AppTheme {
   static final dark = ThemeData(
     useMaterial3: true,
+    brightness: Brightness.dark,
 
+    colorScheme: const ColorScheme.dark(
+      primary: AppColors.primaryDark,
+      surface: AppColors.surfaceDark,
+      background: AppColors.backgroundDark,
+      error: AppColors.errorDark,
+      onPrimary: Colors.black,
+      onSurface: AppColors.textPrimaryDark,
+      onBackground: AppColors.textPrimaryDark,
+      surfaceVariant: AppColors.surfaceVariantDark,
+    ),
+
+    scaffoldBackgroundColor: AppColors.backgroundDark,
+
+    textTheme: TextTheme(
+      displayLarge: AppTextStyles.h1.copyWith(color: AppColors.textPrimaryDark),
+      bodyLarge: AppTextStyles.bodyLarge.copyWith(color: AppColors.textPrimaryDark),
+      bodyMedium: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimaryDark),
+      bodySmall: AppTextStyles.bodySmall.copyWith(color: AppColors.textPrimaryDark),
+    ),
+
+    dividerColor: AppColors.dividerDark,
+    dividerTheme: DividerThemeData(
+      color: AppColors.dividerDark,
+      thickness: 1,
+      indent: 0,
+      endIndent: 0,
+      space: 20,
+    ),
+
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ButtonStyle(
+        backgroundColor: WidgetStateProperty.all(AppColors.primaryDark),
+        foregroundColor: WidgetStateProperty.all(Colors.black),
+        shape: WidgetStateProperty.all(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
+          ),
+        ),
+      ),
+    ),
   );
 
 }
