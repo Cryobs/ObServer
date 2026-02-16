@@ -12,6 +12,7 @@ class AppColors {
   /* Text */
   static const textPrimaryDark = Color(0xFFFFFFFF);
   static const textSecondaryDark = Color(0xFFBDBDBD);
+  static const onPrimary = Colors.black;
 
   /* Additional */
   static const warningDark = Color(0xFFE5A50A);
@@ -73,7 +74,7 @@ class AppTheme {
       surface: AppColors.surfaceDark,
       background: AppColors.backgroundDark,
       error: AppColors.errorDark,
-      onPrimary: Colors.black,
+      onPrimary: AppColors.onPrimary,
       onSurface: AppColors.textPrimaryDark,
       onBackground: AppColors.textPrimaryDark,
       surfaceVariant: AppColors.surfaceVariantDark,
@@ -82,9 +83,6 @@ class AppTheme {
     scaffoldBackgroundColor: AppColors.backgroundDark,
 
     textTheme: TextTheme(
-      titleLarge: AppTextStyles.h1.copyWith(color: AppColors.textPrimaryDark),
-      titleMedium: AppTextStyles.h2.copyWith(color: AppColors.textPrimaryDark),
-      titleSmall: AppTextStyles.h3.copyWith(color: AppColors.textPrimaryDark),
       displayLarge: AppTextStyles.h1.copyWith(color: AppColors.textPrimaryDark),
       bodyLarge: AppTextStyles.bodyLarge.copyWith(color: AppColors.textPrimaryDark),
       bodyMedium: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimaryDark),
@@ -112,12 +110,18 @@ class AppTheme {
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ButtonStyle(
         backgroundColor: WidgetStateProperty.all(AppColors.primaryDark),
-        foregroundColor: WidgetStateProperty.all(Colors.black),
+        foregroundColor: WidgetStateProperty.all(AppColors.onPrimary),
         shape: WidgetStateProperty.all(
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30),
           ),
         ),
+      ),
+    ),
+
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        foregroundColor: AppColors.textPrimaryDark
       ),
     ),
   );

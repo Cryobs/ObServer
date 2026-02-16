@@ -161,14 +161,13 @@ class _ServerListState extends State<ServerList> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, false),
-            child: Text("Cancel",
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondaryDark),),
+            child: Text("Cancel")
           ),
           TextButton(
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: Text(
+            child: const Text(
               "Delete",
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.errorDark),
+              style: TextStyle(color: AppColors.errorDark),
             ),
           ),
         ],
