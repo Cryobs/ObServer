@@ -4,6 +4,9 @@ import 'package:pocket_ssh/services/shortcuts_repository.dart';
 import 'package:pocket_ssh/widgets/shortcut_widget.dart';
 import 'package:pocket_ssh/widgets/add_shortcut_widget.dart';
 import 'package:pocket_ssh/pages/shortcut_form_page.dart';
+import 'package:provider/provider.dart';
+
+import '../services/server_controller.dart';
 
 class ShortcutsPage extends StatefulWidget {
   const ShortcutsPage({super.key});
@@ -103,12 +106,23 @@ class _ShortcutsPageState extends State<ShortcutsPage>
     );
   }
 
-  Widget _tile(ShortcutModel s) {
-    return EditableShortcutTile(
-      key: ValueKey(s.id),
-      shortcut: s,
-      onEdit: () => _editShortcut(s),
-      onDelete: () => _removeShortcut(s.id),
+  Widget _tile(ShortcutModel shortcut) {
+    return GestureDetector(
+      onTap: () async {
+        final controller = context.read<ServerController>();
+        final server = controller.getServer(shortcut.serverId);
+
+        if (server == null) return;
+
+        await server.execScript(shortcut);
+
+      },
+      child: EditableShortcutTile(
+        key: ValueKey(shortcut.id),
+        shortcut: shortcut,
+        onEdit: () => _editShortcut(shortcut),
+        onDelete: () => _removeShortcut(shortcut.id),
+      ),
     );
   }
 }

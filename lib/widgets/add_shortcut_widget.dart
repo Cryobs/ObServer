@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pocket_ssh/theme/app_theme.dart';
 
 class AddShortcutTile extends StatelessWidget {
   final VoidCallback onAdd;
@@ -34,14 +35,10 @@ class AddShortcutTile extends StatelessWidget {
           child: Container(
             width: 48,
             height: 48,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white.withOpacity(0.12),
-            ),
             child: const Icon(
-              Icons.add,
-              color: Colors.white,
-              size: 28,
+              Icons.add_circle_outline,
+              color: AppColors.textSecondaryDark,
+              size: 48,
             ),
           ),
         ),

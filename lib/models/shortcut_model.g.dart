@@ -22,13 +22,15 @@ class ShortcutModelAdapter extends TypeAdapter<ShortcutModel> {
       iconCodePoint: fields[2] as int,
       colorValue: fields[3] as int,
       order: fields[4] as int,
+      serverId: fields[5] as String,
+      script: fields[6] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, ShortcutModel obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -38,7 +40,11 @@ class ShortcutModelAdapter extends TypeAdapter<ShortcutModel> {
       ..writeByte(3)
       ..write(obj.colorValue)
       ..writeByte(4)
-      ..write(obj.order);
+      ..write(obj.order)
+      ..writeByte(5)
+      ..write(obj.serverId)
+      ..writeByte(6)
+      ..write(obj.script);
   }
 
   @override

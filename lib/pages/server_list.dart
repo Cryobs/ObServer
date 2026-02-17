@@ -240,6 +240,7 @@ class _ServerListState extends State<ServerList> {
           await controller.connectToServer(server.id);
         } catch (error) {
           print("Auto-connect failed for ${server.name}: $error");
+
         }
       }
     }

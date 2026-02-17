@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:pocket_ssh/models/shortcut_model.dart';
+import 'package:pocket_ssh/services/server_controller.dart';
 import 'package:pocket_ssh/services/shortcuts_repository.dart';
+import 'package:pocket_ssh/theme/app_theme.dart';
 import 'package:pocket_ssh/widgets/input_big_text.dart';
 import 'package:pocket_ssh/widgets/input_list.dart';
 import 'package:pocket_ssh/widgets/input_text.dart';
 import 'package:pocket_ssh/widgets/shortcut_widget.dart';
+import 'package:provider/provider.dart';
 
 class ShortcutFormPage extends StatefulWidget {
   final ShortcutModel? shortcut;
@@ -21,9 +24,12 @@ class _ShortcutFormPageState extends State<ShortcutFormPage> {
 
   late TextEditingController _titleController;
   late TextEditingController _hexController;
+  late TextEditingController _scriptController;
+  late ServerController _serverController;
 
   late IconData _icon;
   late Color _color;
+  late String _serverId;
 
   Color _tempColor = Colors.blue;
 
@@ -41,21 +47,29 @@ class _ShortcutFormPageState extends State<ShortcutFormPage> {
   @override
   void initState() {
     super.initState();
-
     if (isEdit) {
-      _titleController =
-          TextEditingController(text: widget.shortcut!.title);
+      _titleController = TextEditingController(text: widget.shortcut!.title);
+      
+      _scriptController = TextEditingController(text: widget.shortcut!.script);
       _icon = widget.shortcut!.icon;
       _color = widget.shortcut!.color;
+      _serverId = widget.shortcut!.serverId;
+
     } else {
+      _scriptController = TextEditingController();
       _titleController = TextEditingController();
       _icon = Icons.apps;
       _color = Colors.deepPurple;
     }
 
+    _titleController.addListener(() {
+      setState(() {});
+    });
+
     _tempColor = _color;
     _hexController =
         TextEditingController(text: _color.value.toRadixString(16).substring(2));
+
   }
 
   // =========================
@@ -70,7 +84,9 @@ class _ShortcutFormPageState extends State<ShortcutFormPage> {
       widget.shortcut!
         ..title = _titleController.text
         ..iconCodePoint = _icon.codePoint
-        ..colorValue = _color.value;
+        ..colorValue = _color.value
+        ..serverId = _serverId
+        ..script = _scriptController.text;
 
       await _repo.update(widget.shortcut!);
     } else {
@@ -82,8 +98,9 @@ class _ShortcutFormPageState extends State<ShortcutFormPage> {
         iconCodePoint: _icon.codePoint,
         colorValue: _color.value,
         order: existing.length,
+        serverId: _serverId,
+        script: _scriptController.text,
       );
-
 
       await _repo.add(shortcut);
     }
@@ -193,7 +210,9 @@ class _ShortcutFormPageState extends State<ShortcutFormPage> {
                           : _titleController.text,
                   iconCodePoint: _icon.codePoint,
                   colorValue: _color.value,
-                  order: 1
+                  order: 1,
+                  serverId: '',
+                  script: ''
               ),
               onEdit: () {  },
               onDelete: () {  },
@@ -202,14 +221,28 @@ class _ShortcutFormPageState extends State<ShortcutFormPage> {
             const SizedBox(height: 24),
 
             // NAME
-            InputText(label: "Name", hint: "My Shortcut", controller: _titleController, onChanged: (_) => setState(() {}),),
+            InputText(label: "Name", hint: "My Shortcut", controller: _titleController, onChanged: (_) => setState(() { }),),
             // SERVER
-            InputList(
-              label: "Server",
-              items: [DropdownMenuItem(value: "None", child: Text("None"))],
-              value: 'None',
-              onChanged: (value) {},
-            ),
+            Consumer<ServerController>(
+                builder: (context, controller, child) {
+                  final servers = controller.getAllServers();
+                  
+                  return InputList(
+                    label: "Server",
+                    items: servers.map((server) {
+                      return DropdownMenuItem(
+                        value: server.id,
+                        child: Text(server.name),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _serverId = value;
+                      });
+                    }, value: isEdit ? _serverId : servers[0].id,
+                  );
+            }),
+            
             const Divider(
               color: Colors.white38,
               thickness: 1,
@@ -220,30 +253,9 @@ class _ShortcutFormPageState extends State<ShortcutFormPage> {
 
 
             // SCRIPT
-            InputBigText(label: "Script", hint: "Write a shortcut script",),
+            InputBigText(label: "Script", hint: "Write a shortcut script", controller: _scriptController,),
 
 
-            const Divider(
-              color: Colors.white38,
-              thickness: 1,
-              indent: 0,
-              endIndent: 0,
-              height: 20,
-            ),
-            /*
-            TextField(
-              controller: _titleController,
-              style: const TextStyle(color: Colors.white),
-              decoration: const InputDecoration(
-                labelText: 'Name',
-                labelStyle: TextStyle(color: Colors.white70),
-                enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white24),
-                ),
-              ),
-              onChanged: (_) => setState(() {}),
-            ),
-             */
 
             const SizedBox(height: 24),
 
@@ -255,7 +267,7 @@ class _ShortcutFormPageState extends State<ShortcutFormPage> {
                   onTap: () => setState(() => _icon = i),
                   child: CircleAvatar(
                     backgroundColor:
-                    _icon == i ? Colors.green : Colors.grey[800],
+                    _icon == i ? AppColors.successDark : AppColors.surfaceDark,
                     child: Icon(i, color: Colors.white),
                   ),
                 );

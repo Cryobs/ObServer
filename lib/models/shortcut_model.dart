@@ -20,12 +20,20 @@ class ShortcutModel extends HiveObject {
   @HiveField(4)
   int order;
 
+  @HiveField(5)
+  String serverId;
+
+  @HiveField(6)
+  String script;
+
   ShortcutModel({
     required this.id,
     required this.title,
     required this.iconCodePoint,
     required this.colorValue,
     required this.order,
+    required this.serverId,
+    required this.script,
   });
 
   IconData get icon =>

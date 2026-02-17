@@ -1,23 +1,18 @@
 import 'package:flutter/material.dart';
-
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:pocket_ssh/models/script_run.dart';
+import 'package:pocket_ssh/services/script_history_repo.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:hive_flutter/adapters.dart';
-
-// PAGES
 import 'package:pocket_ssh/pages/template.dart';
 import 'package:pocket_ssh/pages/shortcuts_page.dart';
 import 'package:pocket_ssh/pages/settings.dart';
 import 'package:pocket_ssh/pages/server_list.dart';
 import 'package:pocket_ssh/pages/terminal.dart';
-
-// MODELS
 import 'package:pocket_ssh/models/shortcut_model.dart';
 import 'package:pocket_ssh/models/private_key.dart';
 import 'package:pocket_ssh/models/server.dart';
-
-// SERVICES / REPOS
 import 'package:pocket_ssh/services/shortcuts_repository.dart';
 import 'package:pocket_ssh/services/private_key_repo.dart';
 import 'package:pocket_ssh/services/private_key_controller.dart';
@@ -37,6 +32,7 @@ void main() async {
   Hive.registerAdapter(ShortcutModelAdapter());
   Hive.registerAdapter(PrivateKeyAdapter());
   Hive.registerAdapter(ServerModelAdapter());
+  Hive.registerAdapter(ScriptRunAdapter());
 
   // =========================
   // REPOZYTORIA
@@ -53,6 +49,10 @@ void main() async {
   final prefs = await SharedPreferences.getInstance();
   final settingsRepo = SettingsRepository(prefs);
   final settingsController = SettingsController(settingsRepo);
+
+  final scriptHistoryRepo = ScriptHistoryRepository();
+  await scriptHistoryRepo.init();
+
 
   runApp(
     MultiProvider(
