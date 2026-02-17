@@ -10,30 +10,13 @@ import 'package:pocket_ssh/services/private_key_repo.dart';
 import 'package:pocket_ssh/services/server_controller.dart';
 import 'package:pocket_ssh/services/server_repo.dart';
 import 'package:pocket_ssh/services/settings_storage.dart';
+import 'package:pocket_ssh/services/notification_service.dart'; // ← tylko ten import
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'models/server.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-
-
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-FlutterLocalNotificationsPlugin();
-
-
-Future<void> initNotifications() async {
-  const AndroidInitializationSettings initializationSettingsAndroid =
-  AndroidInitializationSettings('@mipmap/ic_launcher');
-
-  const InitializationSettings initializationSettings =
-  InitializationSettings(
-    android: initializationSettingsAndroid,
-  );
-
-  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
-}
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized(); // ← tylko raz
 
   await Hive.initFlutter();
   Hive.registerAdapter(PrivateKeyAdapter());
@@ -49,7 +32,7 @@ Future<void> main() async {
   final settingsRepo = SettingsRepository(prefs);
   final settingsController = SettingsController(settingsRepo);
 
-  await initNotifications();
+  await NotificationService.init(); // ← tylko raz
 
   runApp(
     MultiProvider(

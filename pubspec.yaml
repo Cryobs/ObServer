@@ -47,7 +47,7 @@ dependencies:
   uuid: ^4.5.2
   cupertino_icons: ^1.0.6
   flutter_local_notifications: ^19.5.0
-flutter_local_notifications: 9.5.3
+
 
 
 

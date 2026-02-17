@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:pocket_ssh/services/notifi.dart';
 import 'package:provider/provider.dart';
 import 'package:pocket_ssh/services/server_controller.dart';
 import 'package:pocket_ssh/services/private_key_controller.dart';
@@ -8,6 +9,7 @@ import 'package:pocket_ssh/widgets/input_pass.dart';
 import 'package:pocket_ssh/widgets/input_list.dart';
 import '../models/server.dart';
 import '../services/secure_storage.dart';
+import 'package:pocket_ssh/services/notifi.dart';
 
 class AddServerPage extends StatefulWidget {
   final String? serverId;
@@ -189,6 +191,7 @@ class _AddServerPageState extends State<AddServerPage> {
         _showSnackBar("Server updated successfully");
       } else {
         await controller.addServer(server);
+        await NotificationService.showServerAdded(_nameController.text.trim())
         _showSnackBar("Server saved successfully");
       }
       if (mounted) {
