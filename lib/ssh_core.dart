@@ -1,12 +1,16 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 import 'package:dartssh2/dartssh2.dart';
+import 'package:hive/hive.dart';
+import 'package:pocket_ssh/models/shortcut_model.dart';
+import 'models/script_run.dart';
 import 'services/secure_storage.dart';
 
 const CONNECTION_ATTEMPT = 5;
 
 const ALL_STATS_CMD = '''
-cpu_usage=\$(grep 'cpu ' /proc/stat | awk '{usage=(\$2+\$4)*100/(\$2+\$4+\$5)} END {print usage}')
+cpu_usage=\$(top -bn1 | grep 'Cpu(s)' | awk '{print 100 - \$8}')
 mem_info=\$(free -b | awk '/Mem:/ {printf("%d %d", \$3, \$2)}')
 storage_info=\$(df --block-size=1 --total | awk '/total/ {print \$3, \$2}')
 uptime_info=\$(uptime -p)
@@ -14,7 +18,7 @@ temp_info=\$(cat /sys/class/hwmon/hwmon*/temp1_input 2>/dev/null | head -n1)
 echo "\$cpu_usage|\$mem_info|\$storage_info|\$uptime_info|\$temp_info"
 ''';
 
-const CPU_USAGE_CMD = "grep 'cpu ' /proc/stat | awk '{usage=(\$2+\$4)*100/(\$2+\$4+\$5)} END {print usage}'";
+const CPU_USAGE_CMD = "top -bn1 | grep 'Cpu(s)' | awk '{print 100 - \$8}'";
 const CPU_USAGE_CMD_ALT = "mpstat 1 1 | awk '/Average/ {print 100 - \$NF}'";
 
 final STORAGE_USAGE_CMD = "df --block-size=1 --total | awk '/total/ {print \$3, \$2}'";
@@ -112,7 +116,6 @@ class Server {
 
       status = ServerStatus.connected;
     } catch (e) {
-      print(sshKey);
       status = ServerStatus.error;
       client = null;
       print("SSH ERROR: $e");
@@ -142,6 +145,43 @@ class Server {
       rethrow;
     }
   }
+
+  Future<void> execScript(ShortcutModel shortcut) async {
+    final box = Hive.box<ScriptRun>('script_history');
+
+    final run = ScriptRun(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      shortcutId: shortcut.id,
+      startTime: DateTime.now(),
+      output: '',
+      finished: false,
+    );
+
+    box.put(run.id, run);
+
+    try {
+      final result = await exec(
+        "bash -c '${shortcut.script.replaceAll("'", "'\\''")}'",
+      );
+
+      final clean = stripAnsi(result);
+
+      run.output = clean.isNotEmpty ? clean : "✔ Script finished (no output)";
+      run.finished = true;
+
+      box.put(run.id, run);
+    } catch (e) {
+      run.output = "❌ Error: $e";
+      run.finished = true;
+      box.put(run.id, run);
+    }
+  }
+
+  String stripAnsi(String text) {
+    final ansiRegex = RegExp(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])');
+    return text.replaceAll(ansiRegex, '');
+  }
+
 
   Future<SSHSession?> openSession() async {
     int counter = 0;

@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 
 class InputList extends StatelessWidget {
   final String label;
-  final List<String> options;
-  final String value;
-  final ValueChanged<String> onChanged;
+  final List<DropdownMenuItem> items;
+  final value;
+  final ValueChanged onChanged;
 
   const InputList({
     super.key,
     required this.label,
-    required this.options,
+    required this.items,
     required this.value,
     required this.onChanged,
   });
@@ -20,24 +20,15 @@ class InputList extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(color: Colors.white, fontSize: 16),
+          style: Theme.of(context).textTheme.bodyLarge,
         ),
         const Spacer(),
         DropdownButtonHideUnderline(
-          child: DropdownButton<String>(
+          child: DropdownButton(
             value: value,
             borderRadius: BorderRadius.circular(20),
-            dropdownColor: const Color(0xFF262626),
-            iconEnabledColor: Colors.white,
-            items: options.map((option) {
-              return DropdownMenuItem(
-                value: option,
-                child: Text(
-                  option,
-                  style: const TextStyle(color: Colors.white),
-                ),
-              );
-            }).toList(),
+            dropdownColor: Theme.of(context).canvasColor,
+            items: items,
             onChanged: (v) {
               if (v != null) onChanged(v);
             },

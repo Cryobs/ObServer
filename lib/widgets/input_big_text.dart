@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 
 class InputBigText extends StatelessWidget {
   final String label;
+  final String? hint;
   final TextEditingController? controller;
 
   const InputBigText({
     super.key,
     required this.label,
     this.controller,
+    this.hint,
   });
 
   @override
@@ -17,7 +19,7 @@ class InputBigText extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(color: Colors.white, fontSize: 16),
+          style: Theme.of(context).textTheme.bodyLarge,
         ),
         const SizedBox(height: 8),
         TextField(
@@ -37,18 +39,14 @@ class InputBigText extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
               borderSide: const BorderSide(color: Colors.white38),
             ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.white),
+          ),
+            style: const TextStyle(
+              color: Colors.white,
+              fontFamily: 'monospace',
+              fontSize: 12,
             ),
           ),
-          style: const TextStyle(
-            color: Colors.white,
-            fontFamily: 'monospace',
-            fontSize: 12,
-          ),
-        ),
-      ],
+        ]
     );
   }
 }
