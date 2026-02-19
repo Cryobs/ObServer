@@ -25,6 +25,8 @@ const UPTIME_CMD = "uptime -p";
 const TEMP_CMD = "cat /sys/class/hwmon/hwmon*/temp1_input 2>/dev/null | head -n1";
 const MEM_USAGE_CMD = "free -b | awk '/Mem:/ {printf(\"%d %d\", \$3, \$2)}'";
 
+const _notificationCooldown = Duration(minutes: 5);
+
 enum AuthType {
   password,
   sshKey,
@@ -73,6 +75,8 @@ class Server {
   bool online;
   SSHClient? client;
 
+  final Map<String, DateTime> _lastNotified = {};
+
   Server({
     required this.id,
     required this.name,
@@ -89,6 +93,16 @@ class Server {
 
   String? get passwordKey => _passwordKey;
   set passwordKey(String? key) => _passwordKey = key;
+
+
+  void _notifyIfCooldownPassed(String type, String title, String body) {
+    final last = _lastNotified[type];
+    final now = DateTime.now();
+    if (last == null || now.difference(last) >= _notificationCooldown) {
+      _lastNotified[type] = now;
+      showAlertNotification(title, body);
+    }
+  }
 
   Future<void> connect() async {
     if (status == ServerStatus.connecting) return;
@@ -190,7 +204,6 @@ class Server {
     if (status != ServerStatus.connected || client == null) {
       print("⚠️ Cannot update stats - not connected to $name");
       return;
-
     }
 
     try {
@@ -203,23 +216,9 @@ class Server {
         _parseStorage(parts[2]);
         _parseUptime(parts[3]);
         _parseTemp(parts[4]);
+
+        _checkThresholds();
       }
-      void _checkThresholds() {
-        if (stat == null) return;
-
-        if (stat!.cpu > 5) {
-          showAlertNotification(name, "CPU przekroczyło 80% (${stat!.cpu.toStringAsFixed(1)}%)");
-        }
-
-        if (stat!.mem > 5) {
-          showAlertNotification(name, "RAM przekroczył 80% (${stat!.mem.toStringAsFixed(1)}%)");
-        }
-
-        if (stat!.storage > 5) {
-          showAlertNotification(name, "Storage przekroczył 80% (${stat!.storage.toStringAsFixed(1)}%)");
-        }
-      }
-
     } catch (e) {
       if (e.toString().contains('SSHAuthFailError')) {
         print("🔒 Auth error for $name - disconnecting");
@@ -228,7 +227,29 @@ class Server {
         return;
       }
 
-      print("OPTIMIZED STATS ERROR for $name: $e");    }
+      print("OPTIMIZED STATS ERROR for $name: $e");
+    }
+  }
+
+  void _checkThresholds() {
+    if (stat == null) return;
+
+    // ── ZMIANA: showAlertNotification → _notifyIfCooldownPassed ──
+    if (stat!.cpu > 80) {
+      _notifyIfCooldownPassed('cpu', name, "CPU przekroczyło 80% (${stat!.cpu.toStringAsFixed(1)}%)");
+    }
+
+    if (stat!.temp > 10) {
+      _notifyIfCooldownPassed('temp', name, "Wysoka temperatura! (${stat!.temp.toStringAsFixed(1)}°C)");
+    }
+
+    if (stat!.mem > 80) {
+      _notifyIfCooldownPassed('mem', name, "RAM przekroczył 80% (${stat!.mem.toStringAsFixed(1)}%)");
+    }
+
+    if (stat!.storage > 80) {
+      _notifyIfCooldownPassed('storage', name, "Storage przekroczył 80% (${stat!.storage.toStringAsFixed(1)}%)");
+    }
   }
 
   void _parseCPU(String cpuStr) {
@@ -309,7 +330,6 @@ class Server {
       stat?.temp = 0;
     }
   }
-
 }
 
 class Statistics {
