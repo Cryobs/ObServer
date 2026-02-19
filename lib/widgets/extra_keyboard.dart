@@ -291,16 +291,14 @@ class _KeyBtn extends StatelessWidget {
 
     if (isToggle && isActive) {
       bg = AppColors.primaryDark;
-      fg = Colors.white;
+      fg = AppColors.textPrimaryDark;
       border = AppColors.primaryDark;
     } else if (isDestructive) {
       bg = const Color(0xFF2C1515);
       fg = const Color(0xFFFF6B6B);
-      border = const Color(0xFF5C2020);
     } else {
-      bg = const Color(0xFF2C2C2E);
-      fg = Colors.white;
-      border = const Color(0xFF3A3A3C);
+      bg = AppColors.btnOnSurface;
+      fg = AppColors.textPrimaryDark;
     }
 
     Widget w = GestureDetector(
@@ -315,7 +313,6 @@ class _KeyBtn extends StatelessWidget {
         decoration: BoxDecoration(
           color: bg,
           borderRadius: BorderRadius.circular(7),
-          border: Border.all(color: border, width: 0.5),
         ),
         alignment: Alignment.center,
         child: Text(
@@ -343,7 +340,7 @@ class _Div extends StatelessWidget {
     width: 1,
     height: 24,
     margin: const EdgeInsets.symmetric(horizontal: 5),
-    color: const Color(0xFF3A3A3C),
+    color: AppColors.dividerDark,
   );
 }
 
@@ -429,9 +426,8 @@ class _SwipeArrowPadState extends State<_SwipeArrowPad> {
         width: _size,
         height: _size,
         decoration: BoxDecoration(
-          color: const Color(0xFF2C2C2E),
+          color: AppColors.btnOnSurface,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: const Color(0xFF3A3A3C), width: 0.5),
         ),
         child: Stack(
           alignment: Alignment.center,
@@ -459,7 +455,7 @@ class _SwipeArrowPadState extends State<_SwipeArrowPad> {
               width: 4,
               height: 4,
               decoration: BoxDecoration(
-                  color: const Color(0xFF555557),
+                  color: AppColors.textDisabledDark,
                   borderRadius: BorderRadius.circular(2)),
             ),
           ],
@@ -480,6 +476,6 @@ class _Arrow extends StatelessWidget {
   Widget build(BuildContext context) => Icon(
     icon,
     size: 14,
-    color: active ? AppColors.primaryDark : const Color(0xFF666668),
+    color: active ? AppColors.primaryDark : AppColors.textDisabledDark,
   );
 }
