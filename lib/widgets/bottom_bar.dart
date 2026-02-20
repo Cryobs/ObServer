@@ -14,7 +14,7 @@ class BottomBar extends StatelessWidget {
   static const List<NavItem> _items = [
     NavItem(Icons.home_rounded, "Home"),
     NavItem(Icons.terminal, "SSH"),
-    NavItem(Icons.arrow_circle_down, "Shortcuts"),
+    NavItem(Icons.launch_rounded, "Shortcuts"),
     NavItem(Icons.settings, "Settings"),
   ];
 
