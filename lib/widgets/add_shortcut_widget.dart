@@ -20,16 +20,23 @@ class AddShortcutTile extends StatelessWidget {
           borderRadius: BorderRadius.circular(22),
           color: AppColors.surfaceVariantDark,
         ),
-        child: Center(
-          child: Container(
-            width: 48,
-            height: 48,
-            child: const Icon(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
               Icons.add_circle_outline,
               color: AppColors.onSurfaceVariant,
               size: 48,
             ),
-          ),
+            SizedBox(height: 8,),
+            Text(
+              "Add shortcut",
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: AppColors.onSurfaceVariant,
+                fontWeight: FontWeight.bold
+              ),
+            )
+          ],
         ),
       ),
     );
