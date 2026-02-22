@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:hive/hive.dart';
 import 'package:pocket_ssh/models/shortcut_model.dart';
 import 'package:pocket_ssh/services/server_controller.dart';
 import 'package:pocket_ssh/services/shortcuts_repository.dart';
@@ -181,22 +182,6 @@ class _ShortcutFormPageState extends State<ShortcutFormPage> {
       appBar: AppBar(
         backgroundColor: Colors.black,
         title: Text(isEdit ? 'Edit Shortcut' : 'Add Shortcut'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text(
-              'CANCEL',
-              style: TextStyle(color: Colors.white54),
-            ),
-          ),
-          TextButton(
-            onPressed: _save,
-            child: const Text(
-              'SAVE',
-              style: TextStyle(color: Colors.green),
-            ),
-          ),
-        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -221,50 +206,9 @@ class _ShortcutFormPageState extends State<ShortcutFormPage> {
               ),
           
               const SizedBox(height: 24),
-          
-              // NAME
-              InputText(label: "Name", hint: "My Shortcut", controller: _titleController, onChanged: (_) => setState(() { }),),
-              // SERVER
-              Consumer<ServerController>(
-                  builder: (context, controller, child) {
-                    final servers = controller.getAllServers();
 
-                    if (!isEdit && servers.isNotEmpty && _serverId.isEmpty) {
-                      _serverId = servers[0].id;
-                    }
 
-                    return InputList(
-                      label: "Server",
-                      items: servers.map((server) {
-                        return DropdownMenuItem(
-                          value: server.id,
-                          child: Text(server.name),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          _serverId = value;
-                        });
-                      }, value: _serverId,
-                    );
-              }),
-              
-              const Divider(
-                color: Colors.white38,
-                thickness: 1,
-                indent: 0,
-                endIndent: 0,
-                height: 20,
-              ),
-          
-          
-              // SCRIPT
-              InputBigText(label: "Script", hint: "Write a shortcut script", controller: _scriptController,),
-          
-          
-          
-              const SizedBox(height: 24),
-          
+
               // ICON PICKER
               Wrap(
                 spacing: 12,
@@ -279,15 +223,94 @@ class _ShortcutFormPageState extends State<ShortcutFormPage> {
                   );
                 }).toList(),
               ),
-          
+
               const SizedBox(height: 24),
-          
+
               // COLOR
               ElevatedButton.icon(
                 onPressed: _pickColor,
                 icon: const Icon(Icons.color_lens),
                 label: const Text('Pick color'),
               ),
+
+              Container(
+                padding: const EdgeInsets.all(37),
+                margin: const EdgeInsets.only(top: 37),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).canvasColor,
+                  borderRadius: BorderRadius.circular(40)
+                ),
+                child: Column(
+                  children: [
+                    // NAME
+                    InputText(label: "Name", hint: "My Shortcut", controller: _titleController, onChanged: (_) => setState(() { }),),
+                    // SERVER
+                    Consumer<ServerController>(
+                        builder: (context, controller, child) {
+                          final servers = controller.getAllServers();
+
+                          if (!isEdit && servers.isNotEmpty && _serverId.isEmpty) {
+                            _serverId = servers[0].id;
+                          }
+
+                          return InputList(
+                            label: "Server",
+                            items: servers.map((server) {
+                              return DropdownMenuItem(
+                                value: server.id,
+                                child: Text(server.name),
+                              );
+                            }).toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                _serverId = value;
+                              });
+                            }, value: _serverId,
+                          );
+                        }),
+
+                    const Divider(
+                      color: Colors.white38,
+                      thickness: 1,
+                      indent: 0,
+                      endIndent: 0,
+                      height: 20,
+                    ),
+
+
+                    // SCRIPT
+                    InputBigText(label: "Script", hint: "Write a shortcut script", controller: _scriptController,),
+
+
+
+                    const SizedBox(height: 24),
+                    /* SAVE BUTTON */
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          _save();
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text("Settings saved")),
+                            );
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 40,
+                            vertical: 8,
+                          ),
+                        ),
+                        child: const Text(
+                          "Save",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    )                  ],
+                ),
+              )
+
             ],
           ),
         ),
