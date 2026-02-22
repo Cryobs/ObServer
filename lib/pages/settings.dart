@@ -36,7 +36,6 @@ class _SettingsPageState extends State<SettingsPage> {
       child: SingleChildScrollView(
         child: Center(
           child: Container(
-            width: 355,
             margin: const EdgeInsets.all(26),
             child: Column(
               children: [
@@ -52,14 +51,13 @@ class _SettingsPageState extends State<SettingsPage> {
                   ],
                 ),
                 Container(
-                  width: 355,
-                  height: 650,
                   padding: const EdgeInsets.all(37),
                   decoration: BoxDecoration(
                     color: Theme.of(context).canvasColor,
                     borderRadius: BorderRadius.circular(40),
                   ),
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       /* REFRESH RATE */
                       InputList(
@@ -81,7 +79,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       const Divider(),
                       const PrivateKeyList(),
                       /* SAVE BUTTON */
-                      const Spacer(),
+                      SizedBox(height: 37,),
                       Align(
                         alignment: Alignment.bottomCenter,
                         child: ElevatedButton(
