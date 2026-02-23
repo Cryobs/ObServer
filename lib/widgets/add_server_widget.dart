@@ -28,7 +28,7 @@ class AddServerWidget extends StatelessWidget {
                   children: [
                     const Icon(
                       Icons.add_circle_outline,
-                      size: 48,
+                      size: 40,
                       color: AppColors.onSurfaceVariant,
                     ),
                     const SizedBox(height: 8,),
@@ -36,7 +36,7 @@ class AddServerWidget extends StatelessWidget {
                       "Add server",
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: AppColors.onSurfaceVariant,
-                          fontWeight: FontWeight.bold
+                          fontWeight: FontWeight.w900
                       ),
                     )                  ],
                 ),
