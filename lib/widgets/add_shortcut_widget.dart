@@ -26,7 +26,7 @@ class AddShortcutTile extends StatelessWidget {
             const Icon(
               Icons.add_circle_outline,
               color: AppColors.onSurfaceVariant,
-              size: 48,
+              size: 40,
             ),
             SizedBox(height: 8,),
             Text(
