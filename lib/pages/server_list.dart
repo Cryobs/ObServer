@@ -29,44 +29,62 @@ class _ServerListState extends State<ServerList> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Consumer<ServerController>(
         builder: (context, controller, child) {
           final servers = controller.getAllServers();
 
-          return ListView(
-            children: [
-              Column(
-                children: [
-                  ...servers.map((server) => Padding(
-                    padding: const EdgeInsets.only(bottom: 20),
-                    child: ServerWidget(
-                      server: server,
-                      online: server.status == ServerStatus.connected,
-                      onTap: () => _connectToServer(context, server),
-                      onLongPress: () => _showServerOptions(context, server),
-                    ),
-                  )),
-                  if (servers.isEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 20),
-                      child: Center(
-                        child: Text(
-                          'No servers yet.\nAdd your first server!',
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: AppColors.textSecondaryDark,
+          if (servers.isEmpty) {
+            return ListView(
+              children: [
+                Padding(
+                padding: const EdgeInsets.only(bottom: 20),
+                child: Center(
+                  child: Text(
+                    'No servers yet.\nAdd your first server!',
+                    textAlign: TextAlign.center,
+                    style: Theme
+                        .of(context)
+                        .textTheme
+                        .bodyLarge
+                        ?.copyWith(
+                          color: AppColors.textSecondaryDark,
                           ),
-                        ),
-                      ),
                     ),
-                  AddServerWidget(
-                    onTap: () => _navigateToAddServer(context),
                   ),
-                ],
-              ),
-            ],
+                ),
+                AddServerWidget(
+                  onTap: () => _navigateToAddServer(context),
+                ),
+              ]
+            );
+          }
+
+
+          return ListView.builder(
+            itemCount: servers.length + 1,
+            itemBuilder: (context, index) {
+              if (index == servers.length) {
+                return AddServerWidget(
+                  onTap: () => _navigateToAddServer(context),
+                );
+              }
+              final server = servers[index];
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 20),
+                child: ServerWidget(
+                  key: ValueKey(server.id),
+                  server: server,
+                  screenWidth: screenWidth,
+                  online: server.status == ServerStatus.connected,
+                  onTap: () => _connectToServer(context, server),
+                  onLongPress: () => _showServerOptions(context, server),
+                ),
+              );
+            }
           );
         },
       ),
@@ -234,16 +252,15 @@ class _ServerListState extends State<ServerList> {
     final controller = context.read<ServerController>();
     final servers = controller.getAllServers();
 
-    for (final server in servers) {
-      if (server.status != ServerStatus.connected) {
-        try {
-          await controller.connectToServer(server.id);
-        } catch (error) {
-          print("Auto-connect failed for ${server.name}: $error");
-
-        }
-      }
-    }
+    await Future.wait(
+      servers
+          .where((s) => s.status != ServerStatus.connected)
+          .map(
+            (s) => controller.connectToServer(s.id).catchError((error) {
+          print("Auto-connect failed for ${s.name}: $error");
+        }),
+      ),
+    );
 
     _isAutoConnecting = false;
   }
