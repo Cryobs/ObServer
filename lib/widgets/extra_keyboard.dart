@@ -33,6 +33,54 @@ class ExtraKeyboard extends StatefulWidget {
 
 class _ExtraKeyboardState extends State<ExtraKeyboard> {
 
+  static const Map<int, String> _fKeyMap = {
+    1: '\x1BOP',
+    2: '\x1BOQ',
+    3: '\x1BOR',
+    4: '\x1BOS',
+    5: '\x1B[15~',
+    6: '\x1B[17~',
+    7: '\x1B[18~',
+    8: '\x1B[19~',
+    9: '\x1B[20~',
+    10: '\x1B[21~',
+    11: '\x1B[23~',
+    12: '\x1B[24~',
+  };
+
+  static final Map<LogicalKeyboardKey, String> _ctrlSpecialSeqs = {
+    LogicalKeyboardKey.arrowLeft: '\x1B[1;5D',
+    LogicalKeyboardKey.arrowRight: '\x1B[1;5C',
+    LogicalKeyboardKey.arrowUp: '\x1B[1;5A',
+    LogicalKeyboardKey.arrowDown: '\x1B[1;5B',
+  };
+
+  static final Map<LogicalKeyboardKey, String> _specialKeySeqs = {
+    LogicalKeyboardKey.arrowUp: '\x1B[A',
+    LogicalKeyboardKey.arrowDown: '\x1B[B',
+    LogicalKeyboardKey.arrowLeft: '\x1B[D',
+    LogicalKeyboardKey.arrowRight: '\x1B[C',
+    LogicalKeyboardKey.home: '\x1B[H',
+    LogicalKeyboardKey.end: '\x1B[F',
+    LogicalKeyboardKey.pageUp: '\x1B[5~',
+    LogicalKeyboardKey.pageDown: '\x1B[6~',
+    LogicalKeyboardKey.delete: '\x1B[3~',
+  };
+
+  static final Set<LogicalKeyboardKey> _bareModifiers = {
+    LogicalKeyboardKey.control,
+    LogicalKeyboardKey.controlLeft,
+    LogicalKeyboardKey.controlRight,
+    LogicalKeyboardKey.alt,
+    LogicalKeyboardKey.altLeft,
+    LogicalKeyboardKey.altRight,
+    LogicalKeyboardKey.shift,
+    LogicalKeyboardKey.shiftLeft,
+    LogicalKeyboardKey.shiftRight,
+    LogicalKeyboardKey.meta,
+    LogicalKeyboardKey.metaLeft,
+    LogicalKeyboardKey.metaRight,
+  };
 
   @override
   void initState() {
@@ -53,7 +101,7 @@ class _ExtraKeyboardState extends State<ExtraKeyboard> {
 
     final logical = event.logicalKey;
 
-    if (_isBareModifier(logical)) return false;
+    if (_bareModifiers.contains(logical)) return false;
 
     if (widget.ctrlActive) {
       final consumed = _handleCtrlKey(event);
@@ -81,7 +129,7 @@ class _ExtraKeyboardState extends State<ExtraKeyboard> {
       }
     }
     // Ctrl + special keys
-    final seq = _ctrlSpecialSeq(event.logicalKey);
+    final seq = _ctrlSpecialSeqs[event.logicalKey];
     if (seq != null) {
       widget.sendRawBytes(utf8.encode(seq));
       return true;
@@ -95,7 +143,7 @@ class _ExtraKeyboardState extends State<ExtraKeyboard> {
       widget.sendRawBytes([0x1B, ...utf8.encode(char)]);
       return true;
     }
-    final seq = _specialKeySeq(event.logicalKey);
+    final seq = _specialKeySeqs[event.logicalKey];
     if (seq != null) {
       // Alt + special key: ESC prefix + sequence
       widget.sendRawBytes([0x1B, ...utf8.encode(seq)]);
@@ -104,63 +152,8 @@ class _ExtraKeyboardState extends State<ExtraKeyboard> {
     return false;
   }
 
-  bool _isBareModifier(LogicalKeyboardKey key) {
-    return key == LogicalKeyboardKey.control ||
-        key == LogicalKeyboardKey.controlLeft ||
-        key == LogicalKeyboardKey.controlRight ||
-        key == LogicalKeyboardKey.alt ||
-        key == LogicalKeyboardKey.altLeft ||
-        key == LogicalKeyboardKey.altRight ||
-        key == LogicalKeyboardKey.shift ||
-        key == LogicalKeyboardKey.shiftLeft ||
-        key == LogicalKeyboardKey.shiftRight ||
-        key == LogicalKeyboardKey.meta ||
-        key == LogicalKeyboardKey.metaLeft ||
-        key == LogicalKeyboardKey.metaRight;
-  }
 
-  String? _ctrlSpecialSeq(LogicalKeyboardKey key) {
-    // Word-jump sequences (Ctrl+Arrow)
-    if (key == LogicalKeyboardKey.arrowLeft) return '\x1B[1;5D';
-    if (key == LogicalKeyboardKey.arrowRight) return '\x1B[1;5C';
-    if (key == LogicalKeyboardKey.arrowUp) return '\x1B[1;5A';
-    if (key == LogicalKeyboardKey.arrowDown) return '\x1B[1;5B';
-    return null;
-  }
-
-  String? _specialKeySeq(LogicalKeyboardKey key) {
-    if (key == LogicalKeyboardKey.arrowUp) return '\x1B[A';
-    if (key == LogicalKeyboardKey.arrowDown) return '\x1B[B';
-    if (key == LogicalKeyboardKey.arrowLeft) return '\x1B[D';
-    if (key == LogicalKeyboardKey.arrowRight) return '\x1B[C';
-    if (key == LogicalKeyboardKey.home) return '\x1B[H';
-    if (key == LogicalKeyboardKey.end) return '\x1B[F';
-    if (key == LogicalKeyboardKey.pageUp) return '\x1B[5~';
-    if (key == LogicalKeyboardKey.pageDown) return '\x1B[6~';
-    if (key == LogicalKeyboardKey.delete) return '\x1B[3~';
-    return null;
-  }
-
-
-
-  String _fKeySeq(int n) {
-    const map = {
-      1: '\x1BOP',
-      2: '\x1BOQ',
-      3: '\x1BOR',
-      4: '\x1BOS',
-      5: '\x1B[15~',
-      6: '\x1B[17~',
-      7: '\x1B[18~',
-      8: '\x1B[19~',
-      9: '\x1B[20~',
-      10: '\x1B[21~',
-      11: '\x1B[23~',
-      12: '\x1B[24~',
-    };
-    return map[n] ?? '';
-  }
-
+  String _fKeySeq(int n) => _fKeyMap[n] ?? '';
 
   @override
   Widget build(BuildContext context) {
