@@ -38,23 +38,61 @@ class _TerminalScreenState extends State<TerminalScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkOnlineServers();
     });
+    terminal.onOutput = _handleTerminalOutput;
+    terminal.onResize = _handleTerminalResize;
   }
 
   @override
   void dispose() {
-    _cleanupConnection();
+    _cleanupSession();
     super.dispose();
   }
 
-  void _cleanupConnection() {
+  void _cleanupSession() {
     _stdoutSubscription?.cancel();
     _stderrSubscription?.cancel();
     _stdoutSubscription = null;
     _stderrSubscription = null;
     session?.close();
-    selectedServer?.disconnect();
+    session = null;
     _isConnected = false;
   }
+
+  void _handleTerminalOutput(String data) {
+    if (session == null || !_isConnected) return;
+
+    if (_ctrlActive && data.length == 1) {
+      final code = data.toUpperCase().codeUnitAt(0);
+      if (code >= 64 && code <= 95) {
+        session!.write(Uint8List.fromList([code - 64]));
+        _setCtrl(false);
+        return;
+      }
+    }
+
+    if (_altActive && data.length == 1) {
+      session!.write(Uint8List.fromList([0x1B, ...utf8.encode(data)]));
+      _setAlt(false);
+      return;
+    }
+
+    session!.write(utf8.encode(data));
+  }
+
+  void _handleTerminalResize(int width, int height, int pixelWidth, int pixelHeight) {
+    session?.resizeTerminal(width, height, pixelWidth, pixelHeight);
+  }
+
+  void _setCtrl(bool value) {
+    if (_ctrlActive == value) return;
+    setState(() => _ctrlActive = value);
+  }
+
+  void _setAlt(bool value) {
+    if (_altActive == value) return;
+    setState(() => _altActive = value);
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -92,10 +130,10 @@ class _TerminalScreenState extends State<TerminalScreen> {
                     );
                   }).toList(),
                   onChanged: (v) {
-                    session?.close();
-                    selectedServer?.disconnect();
+                    if (v == selectedServer) return;
+                    _cleanupSession();
                     setState(() => selectedServer = v);
-                    _initTerminal();
+                    if (v != null) _initTerminal();
                   },
                 );
               },
@@ -140,10 +178,10 @@ class _TerminalScreenState extends State<TerminalScreen> {
     if (_ctrlActive && value.length == 1) {
       final code = value.toUpperCase().codeUnitAt(0);
       session!.write(Uint8List.fromList([code - 64]));
-      setState(() => _ctrlActive = false);
+      _setCtrl(false);
     } else if (_altActive) {
       session!.write(Uint8List.fromList([0x1B, ...utf8.encode(value)]));
-      setState(() => _altActive = false);
+      _setAlt(false);
     } else {
       session!.write(Uint8List.fromList(utf8.encode(value)));
     }
@@ -154,34 +192,10 @@ class _TerminalScreenState extends State<TerminalScreen> {
     terminal.buffer.setCursor(0, 0);
     terminal.write('Connecting to ${selectedServer?.host}...\r\n');
 
-    terminal.onOutput = (data) {
-      if (session == null || !_isConnected) return;
-
-      if (_ctrlActive && data.length == 1) {
-        final code = data.toUpperCase().codeUnitAt(0);
-        if (code >= 64 && code <= 95) {
-          session!.write(Uint8List.fromList([code - 64]));
-          setState(() => _ctrlActive = false);
-          return;
-        }
-      }
-
-      if (_altActive && data.length == 1) {
-        session!.write(Uint8List.fromList([0x1B, ...utf8.encode(data)]));
-        setState(() => _altActive = false);
-        return;
-      }
-
-      session!.write(utf8.encode(data));
-    };
-    terminal.onResize = (width, height, pixelWidth, pixelHeight) {
-      if (session != null && _isConnected) {
-        session!.resizeTerminal(width, height, pixelWidth, pixelHeight);
-      }
-    };
-
     await _connectToServer();
-    await selectedServer?.updateStatsOptimized();
+
+    /* foreground stat update */
+    selectedServer?.updateStatsOptimized().catchError((_) {});
   }
 
   void _checkOnlineServers() {
@@ -207,8 +221,9 @@ class _TerminalScreenState extends State<TerminalScreen> {
       terminal.buffer.clear();
       terminal.buffer.setCursor(0, 0);
 
-      _stdoutSubscription =
-          const Utf8Decoder(allowMalformed: true).bind(session!.stdout).listen(
+      _stdoutSubscription = const Utf8Decoder(allowMalformed: true)
+          .bind(session!.stdout)
+          .listen(
                 (data) {
               if (mounted) terminal.write(data);
             },
@@ -223,8 +238,9 @@ class _TerminalScreenState extends State<TerminalScreen> {
             },
           );
 
-      _stderrSubscription =
-          const Utf8Decoder(allowMalformed: true).bind(session!.stderr).listen(
+      _stderrSubscription = const Utf8Decoder(allowMalformed: true)
+          .bind(session!.stderr)
+          .listen(
                 (data) {
               if (mounted) terminal.write(data);
             },
@@ -233,7 +249,7 @@ class _TerminalScreenState extends State<TerminalScreen> {
             },
           );
 
-      terminal.write('Connected!\r\n');
+      if (mounted) terminal.write('Connected!\r\n');
     } catch (e) {
       terminal.write('\r\nConnection error: $e\r\n');
       if (mounted) setState(() => _isConnected = false);

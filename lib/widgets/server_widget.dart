@@ -11,11 +11,13 @@ class ServerWidget extends StatefulWidget {
   final Server server;
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
+  final double screenWidth;
 
   const ServerWidget({
     super.key,
     required this.online,
     required this.server,
+    required this.screenWidth,
     this.onTap,
     this.onLongPress,
   });
@@ -29,6 +31,18 @@ class _ServerWidgetState extends State<ServerWidget> {
   static const Color orange = AppColors.warningDark;
   static const Color red = AppColors.errorDark;
 
+  late final double _diagramHeight;
+
+  @override
+  void initState() {
+    super.initState();
+    _diagramHeight = (widget.screenWidth * 0.25).clamp(105.0, 130.0);
+
+    if (widget.server.stat == null) {
+      widget.server.stat = Statistics();
+    }
+  }
+
   Color _getTempColor(double temp) {
     if (temp < 70) {
       return green;
@@ -41,71 +55,63 @@ class _ServerWidgetState extends State<ServerWidget> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.server.stat == null) {
-      widget.server.stat = Statistics();
-    }
-
     return GestureDetector(
       onTap: widget.onTap,
       onLongPress: widget.onLongPress,
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final screenWidth = MediaQuery.of(context).size.width;
-          final diagramHeight = (screenWidth * 0.25).clamp(105.0, 130.0);
-
-          return Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Theme.of(context).canvasColor,
-              borderRadius: BorderRadius.circular(15),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Theme.of(context).canvasColor,
+          borderRadius: BorderRadius.circular(15),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            /* Header */
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                /* Header */
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        widget.server.name,
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    OnlineIndicator(online: widget.online),
-                  ],
+                Flexible(
+                  child: Text(
+                    widget.server.name,
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyLarge
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-                const Divider(),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      flex: 6,
-                      child: _buildDiagramsSection(diagramHeight),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      flex: 2,
-                      child: _buildInfoSection(diagramHeight),
-                    ),
-                  ],
+                const SizedBox(width: 8),
+                OnlineIndicator(online: widget.online),
+              ],
+            ),
+            const Divider(),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  flex: 6,
+                  child: _buildDiagramsSection(),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  flex: 2,
+                  child: _buildInfoSection(),
                 ),
               ],
             ),
-          );
-        },
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildDiagramsSection(double height) {
+  Widget _buildDiagramsSection() {
     final stat = widget.server.stat!;
 
     return Container(
-      height: height,
+      height: _diagramHeight,
       decoration: BoxDecoration(
         color: AppColors.surfaceVariantDark,
         borderRadius: BorderRadius.circular(15),
@@ -144,11 +150,11 @@ class _ServerWidgetState extends State<ServerWidget> {
     );
   }
 
-  Widget _buildInfoSection(double height) {
+  Widget _buildInfoSection() {
     final stat = widget.server.stat!;
 
     return Container(
-      height: height,
+      height: _diagramHeight,
       decoration: BoxDecoration(
         color: AppColors.surfaceVariantDark,
         borderRadius: BorderRadius.circular(15),
